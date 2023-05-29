@@ -1,7 +1,7 @@
 package utils;
 
-import Pool.models.particle.FixedParticle;
-import Pool.models.particle.Particle;
+import models.particle.Limit;
+import models.particle.Particle;
 
 import java.io.File;
 import java.io.FileWriter;

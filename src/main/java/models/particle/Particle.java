@@ -1,153 +1,75 @@
 package models.particle;
 
-import Pool.algorithms.DynamicsAlgorithm;
-import Pool.algorithms.GearPredictorCorrector;
-import Pool.models.Pair;
+import algorithms.Beeman;
+import models.Pair;
 
-import java.util.List;
 import java.util.Objects;
 
 public class Particle {
-    public enum Color{
-        RED(255, 0, 0),
-        GREEN(0, 255, 0),
-        BLUE(0, 0, 255),
-        ORANGE(244, 171, 0),
-        WHITE(255, 255, 255);
-        final int r;
-        final int g;
-        final int b;
-
-        Color(int r, int g, int b) {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-        }
-    }
-    private final Color color;
-    private static final Double MAX_X = 224.0;
-    private static final Double MAX_Y = 112.0;
-    private static final Double K = 10000.0 / 100;
-    private final Pair<Double> position;
-    private final Pair<Double> velocity;
+    private final Pair<Double> force;
+    private Pair<Double> position;
+    private Pair<Double> velocity;
     private final Double radius;
     private final Double mass;
-    private final DynamicsAlgorithm algorithm;
-    private final Pair<Double> force;
+    private final int id;
 
-    public static Particle copy(Particle particle, Double dt, Color color){
-        return new Particle(particle.getX(), particle.getY(), particle.getVx(), particle.getVy(), particle.radius, particle.mass, new GearPredictorCorrector(dt), color);
-    }
+    // Beeman information
+    private final Double dt;
+    private final Double sqrDt;
+    private Pair<Double> prevAcceleration;
+    private Pair<Double> actualAcceleration;
+    private Pair<Double> actualVelocity;
+    private static final double GRAVITY = -981.0;
 
-    public Particle(Double x, Double y, Double vx, Double vy, Double radius, Double mass, DynamicsAlgorithm algorithm, Color color) {
-        this.color = color;
-        this.position = new Pair<>(x, y);
-        this.velocity = new Pair<>(vx, vy);
+    public Particle(int id, Pair<Double> position, Double radius, Double mass, Double dt) {
+        this.id = id;
+        this.position = position;
         this.radius = radius;
         this.mass = mass;
-        this.algorithm = algorithm;
-        this.force = new Pair<>(0.0, 0.0);
-        this.algorithm.setParticle(this);
+        this.force = new Pair<>(0.0, mass * GRAVITY);
+        this.velocity = new Pair<>(0.0, 0.0);
+        this.dt = dt;
+        this.sqrDt = Math.pow(dt, 2);
+
+        prevAcceleration = new Pair<>(0.0, GRAVITY);
     }
 
-
-    public void move(List<Particle> particles) {
-        algorithm.prediction();
-        this.updateForce(particles);
-        this.algorithm.calculateNext();
-
+    public void resetForce(){
+        force.setX(0.0);
+        force.setY(0.0);
     }
 
-    private void updateForce(List<Particle> particles) {
-        this.force.setX(0.0);
-        this.force.setY(0.0);
-        particles.forEach(
-                p -> {
-                    if (this.borderDistanceTo(p.position, p.radius) <= 0) {
-                        Pair<Double> interactionForce = this.getInteractionForce(p);
-                        this.force.setX(this.force.getX() + interactionForce.getX());
-                        this.force.setY(this.force.getY() + interactionForce.getY());
-                    }
-                }
-        );
-
-        if (position.getX() < this.radius)
-            this.force.setX(this.force.getX() - (position.getX() - this.radius) * K);
-        if (position.getX() > MAX_X - this.radius)
-            this.force.setX(this.force.getX() - (position.getX() - (MAX_X - this.radius)) * K);
-
-        if (position.getY() < this.radius)
-            this.force.setY(this.force.getY() - (position.getY() - this.radius) * K);
-        if (position.getY() > MAX_Y - this.radius)
-            this.force.setY(this.force.getY() - (position.getY() - (MAX_Y - this.radius)) * K);
+    public void addToForce(double x, double y){
+        force.setX(force.getX() + x);
+        force.setY(force.getY() + y);
     }
 
-
-    public Pair<Double> getInteractionForce(Particle particle) {
-
-        double radiusSum = particle.getRadius() + getRadius();
-
-        double deltaX = particle.getX() - getX();
-        double deltaY = particle.getY() - getY();
-
-        double modulo = Math.sqrt(
-                Math.pow(deltaX, 2) + Math.pow(deltaY, 2)
-        );
-
-        double f = (modulo - radiusSum) * K;
-
-        return new Pair<>(
-                (deltaX / modulo) * f,
-                (deltaY / modulo) * f
-        );
+    public void addToForceY(double y){
+        force.setY(force.getY() + y);
     }
 
-    public Double getX() {
-        return position.getX();
+    public void addToForceX(double x){
+        force.setX(force.getX() + x);
     }
 
-
-    public Double getY() {
-        return position.getY();
+    public Pair<Double> getForce() {
+        return force;
     }
 
-    public Double getVx() {
-        return velocity.getX();
+    public Pair<Double> getAcceleration(){
+        return new Pair<>(getForce().getX()/getMass(), getForce().getY()/getMass());
     }
 
-
-    public Double getVy() {
-        return velocity.getY();
+    public Pair<Double> getPosition() {
+        return position;
     }
 
-
-    public void setX(Double x) {
-        position.setX(x);
+    public Pair<Double> getVelocity() {
+        return velocity;
     }
-
-
-    public void setY(Double y) {
-        position.setY(y);
-    }
-
-    public void setVx(Double Vx) {
-        velocity.setX(Vx);
-    }
-
-
-    public void setVy(Double Vy) {
-        velocity.setY(Vy);
-    }
-
 
     public Double getRadius() {
         return radius;
-    }
-
-    public Double borderDistanceTo(Pair<Double> o, Double radius) {
-        return Math.sqrt(
-                Math.pow(getX() - o.getX(), 2) + Math.pow(getY() - o.getY(), 2)
-        ) - (getRadius() + radius);
     }
 
     public Double getMass() {
@@ -155,31 +77,48 @@ public class Particle {
     }
 
     public String toString() {
-        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + color.r + " " + color.g + " " + color.b;
+        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + id;
     }
 
-    public Double getForceX() {
-        return force.getX();
+
+    // BEEMAN
+    public void prediction() {
+
+        double newX = this.getPosition().getX() + this.getVelocity().getX() * dt + (2.0 / 3.0) * this.getAcceleration().getX() * sqrDt - (1.0 / 6.0) * prevAcceleration.getX() * sqrDt;
+        double newY = this.getPosition().getY() + this.getVelocity().getY() * dt + (2.0 / 3.0) * this.getAcceleration().getY() * sqrDt - (1.0 / 6.0) * prevAcceleration.getY() * sqrDt;
+
+        //System.out.println(newX + " " + newY);
+        double predictedVx = this.getVelocity().getX() + 1.5 * this.getAcceleration().getX() * dt - 0.5 * prevAcceleration.getX() * dt;
+        double predictedVy = this.getVelocity().getY() + 1.5 * this.getAcceleration().getY() * dt - 0.5 * prevAcceleration.getY() * dt;
+
+        actualVelocity = this.getVelocity();
+        actualAcceleration = this.getAcceleration();
+
+        this.position = new Pair<>(newX, newY);
+        this.velocity = new Pair<>(predictedVx, predictedVy);
+
     }
 
-    public Double getForceY() {
-        return force.getY();
-    }
+    public void correction(){
+        double newVx = actualVelocity.getX() + (1.0/3.0)*this.getAcceleration().getX()*dt + (5.0/6.0)* actualAcceleration.getX()*dt - (1.0/6.0)* prevAcceleration.getX()*dt;
+        double newVy = actualVelocity.getY() + (1.0/3.0)*this.getAcceleration().getY()*dt + (5.0/6.0)* actualAcceleration.getY()*dt - (1.0/6.0)* prevAcceleration.getY()*dt;
 
-    public Pair<Double> getPosition() {
-        return position;
+
+        this.velocity = new Pair<>(newVx, newVy);
+
+        prevAcceleration = actualAcceleration;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Particle)) return false;
         Particle particle = (Particle) o;
-        return color == particle.color && Objects.equals(position, particle.position) && Objects.equals(velocity, particle.velocity) && Objects.equals(radius, particle.radius) && Objects.equals(mass, particle.mass) && Objects.equals(algorithm, particle.algorithm) && Objects.equals(force, particle.force);
+        return id == particle.id;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(color, position, velocity, radius, mass, algorithm, force);
+        return Objects.hash(id);
     }
 }

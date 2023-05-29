@@ -1,16 +1,13 @@
 package models;
 
-import Pool.models.particle.Particle;
+import models.particle.Particle;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Cell implements Comparable<Cell>{
+public class Cell{
 
     private final List<Particle> particles = new ArrayList<>();
-
-    public Cell() {
-    }
 
     public void add(Particle particle){
         particles.add(particle);
@@ -24,8 +21,4 @@ public class Cell implements Comparable<Cell>{
         return particles;
     }
 
-    @Override
-    public int compareTo(Cell o) {
-        return Integer.compare(this.particles.size(), o.particles.size());
-    }
 }

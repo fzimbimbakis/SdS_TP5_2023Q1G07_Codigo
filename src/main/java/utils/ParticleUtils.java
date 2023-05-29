@@ -1,8 +1,7 @@
 package utils;
 
-import Pool.algorithms.GearPredictorCorrector;
-import Pool.models.particle.FixedParticle;
-import Pool.models.particle.Particle;
+import models.Pair;
+import models.particle.Particle;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,107 +12,61 @@ public class ParticleUtils {
         return min + Math.random() * Math.abs(max - min);
     }
 
-    public static List<FixedParticle> generateFixedParticles(JsonConfigReader config){
-        Double RADIUS = config.getRadius();
 
-        List<FixedParticle> list = new ArrayList<>();
+//    public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
+//        List<Particle> particles = new ArrayList<>();
+//        double x, y, radius;
+//        for (int i = 0; i < N; i++) {
+//            // Generate
+//            x = Math.random() * W;
+//            y = Math.random() * L;
+//            radius = Math.random() * 1.15;
+//            particles.add(new Particle(i, new Pair<>(x, y), radius, mass, dt));
+//        }
+//        return particles;
+//    }
+public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
+    List<Particle> particles = new ArrayList<>();
+    double x, y, radius;
+    boolean overlap;
 
-        //// Fixed
-        list.add(new FixedParticle(0.0, 0.0, 2*RADIUS));
-        list.add(new FixedParticle(config.getMaxX() / 2, 0.0, 2*RADIUS));
-        list.add(new FixedParticle(config.getMaxX(), 0.0, 2*RADIUS));
+    for (int i = 0; i < N; i++) {
+        // Generate initial particle
+        radius = 0.85 + Math.random() * (1.15 - 0.85);
+        x = radius + Math.random() * (W - 2 * radius);
+        y = radius + Math.random() * (L - 2 * radius);
+        Particle newParticle = new Particle(i, new Pair<>(x, y), radius, mass, dt);
 
-        list.add(new FixedParticle(0.0, config.getMaxY(), 2*RADIUS));
-        list.add(new FixedParticle(config.getMaxX() / 2, config.getMaxY(), 2*RADIUS));
-        list.add(new FixedParticle(config.getMaxX(), config.getMaxY(), 2*RADIUS));
+        overlap = false;
 
-        return list;
-    }
-
-    public static List<FixedParticle> generateInvisible(JsonConfigReader config){
-
-        List<FixedParticle> list = new ArrayList<>();
-
-        //// Fixed
-        list.add(new FixedParticle(0.0, 0.0, 0.0));
-        list.add(new FixedParticle(config.getMaxX() / 2, 0.0, 0.0));
-        list.add(new FixedParticle(config.getMaxX(), 0.0, 0.0));
-
-        list.add(new FixedParticle(0.0, config.getMaxY(), 0.0));
-        list.add(new FixedParticle(config.getMaxX() / 2, config.getMaxY(), 0.0));
-        list.add(new FixedParticle(config.getMaxX(), config.getMaxY(), 0.0));
-
-        return list;
-    }
-
-    public static List<Particle> generateInitialParticles(JsonConfigReader config){
-
-        Double RADIUS = config.getRadius();
-        Double MASS = config.getMass();
-        Double MAX_EPSILON = config.getMaxEpsilon();
-        Double MIN_EPSILON = config.getMinEpsilon();
-
-        List<Particle> list = new ArrayList<>();
-
-        //// White
-        list.add(new Particle(config.getWhiteX(), config.getWhiteY(), config.getWhiteV(), 0.0, RADIUS, MASS, new GearPredictorCorrector(config.getDt()), Particle.Color.WHITE));
-
-        //// Default balls
-        Double triangleX = config.getTriangleX();
-        Double triangleY = config.getTriangleY();
-
-        int n = 1;
-        double deltaY = RADIUS * 2 + MAX_EPSILON;
-        double deltaX = Math.cos(Math.PI / 6) * (RADIUS * 2 + MAX_EPSILON);
-
-        for (int i = 0; i < 5; i++) {
-            list.add(new Particle(triangleX + randomEpsilon(MIN_EPSILON, MAX_EPSILON), triangleY + randomEpsilon(MIN_EPSILON, MAX_EPSILON), 0.0, 0.0, RADIUS, MASS, new GearPredictorCorrector(config.getDt()), Particle.Color.RED));
-
-            for (int j = 1; j < n; j++) {
-                list.add(new Particle(triangleX + randomEpsilon(MIN_EPSILON, MAX_EPSILON), triangleY - j * deltaY + randomEpsilon(MIN_EPSILON, MAX_EPSILON), 0.0, 0.0, RADIUS, MASS, new GearPredictorCorrector(config.getDt()), Particle.Color.RED));
+        // Check for overlap with existing particles
+        for (Particle existingParticle : particles) {
+            double distance = calculateDistance(newParticle, existingParticle);
+            if (distance < newParticle.getRadius() + existingParticle.getRadius()) {
+                overlap = true;
+                break;
             }
-
-            n++;
-            triangleX += deltaX;
-            triangleY += deltaY / 2;
         }
 
-        return list;
+        // If overlap detected, generate a new particle
+        if (overlap) {
+            System.out.println("OVERLAP");
+            i--;
+        } else {
+            particles.add(newParticle);
+        }
     }
 
-    public static List<Particle> generateInitialParticles(JsonConfigReader config, double whiteY){
+    return particles;
+}
 
-        Double RADIUS = config.getRadius();
-        Double MASS = config.getMass();
-        Double MAX_EPSILON = config.getMaxEpsilon();
-        Double MIN_EPSILON = config.getMinEpsilon();
+    private static double calculateDistance(Particle p1, Particle p2) {
+        double x1 = p1.getPosition().getX();
+        double y1 = p1.getPosition().getY();
+        double x2 = p2.getPosition().getX();
+        double y2 = p2.getPosition().getY();
 
-        List<Particle> list = new ArrayList<>();
-
-        //// White
-        list.add(new Particle(config.getWhiteX(), whiteY, config.getWhiteV(), 0.0, RADIUS, MASS, new GearPredictorCorrector(config.getDt()), Particle.Color.WHITE));
-
-        //// Default balls
-        Double triangleX = config.getTriangleX();
-        Double triangleY = config.getTriangleY();
-
-        int n = 1;
-        double deltaY = RADIUS * 2 + MAX_EPSILON;
-        double deltaX = Math.cos(Math.PI / 6) * (RADIUS * 2 + MAX_EPSILON);
-
-        for (int i = 0; i < 5; i++) {
-            list.add(new Particle(triangleX + randomEpsilon(MIN_EPSILON, MAX_EPSILON), triangleY + randomEpsilon(MIN_EPSILON, MAX_EPSILON), 0.0, 0.0, RADIUS, MASS, new GearPredictorCorrector(config.getDt()), Particle.Color.RED));
-
-            for (int j = 1; j < n; j++) {
-                list.add(new Particle(triangleX + randomEpsilon(MIN_EPSILON, MAX_EPSILON), triangleY - j * deltaY + randomEpsilon(MIN_EPSILON, MAX_EPSILON), 0.0, 0.0, RADIUS, MASS, new GearPredictorCorrector(config.getDt()), Particle.Color.RED));
-            }
-
-            n++;
-            triangleX += deltaX;
-            triangleY += deltaY / 2;
-        }
-
-        return list;
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
 }

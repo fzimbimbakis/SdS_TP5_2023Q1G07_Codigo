@@ -1,15 +1,8 @@
 {
-  "radius": 2.85,
-  "mass": 0.165,
-  "white_v": 100.0,
-  "white_x": 56.0,
-  "white_y": 56.0,
-  "max_x": 224.0,
-  "max_y": 112.0,
-  "triangle_x": 168.0,
-  "triangle_y": 56.0,
-  "min_epsilon": 0.02,
-  "max_epsilon": 0.03,
+  "mass": 0.001,
+  "W": 20.0,
+  "L": 70.0,
   "dt": 0.0001,
-  "max_t": 100
+  "max_t": 1000,
+  "N": 200
 }
