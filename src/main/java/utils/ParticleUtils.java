@@ -8,7 +8,7 @@ import java.util.List;
 
 public class ParticleUtils {
 
-    private static Double randomEpsilon(Double min, Double max){
+    private static Double randomEpsilon(Double min, Double max) {
         return min + Math.random() * Math.abs(max - min);
     }
 

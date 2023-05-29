@@ -29,11 +29,11 @@ public class Ovito {
         }
     }
 
-    public static void writeParticlesToFileXyz(String filePath, List<Particle> particles, List<FixedParticle> fixed, String comment) {
+    public static void writeParticlesToFileXyz(String filePath, List<Particle> particles, List<Limit> fixed, String comment) {
         try {
             FileWriter myWriter = new FileWriter(filePath, true);
             myWriter.write((fixed.size() + particles.size()) + "\n" + comment + "\n");
-            for (FixedParticle particle : fixed)
+            for (Limit particle : fixed)
                 myWriter.write(particle.toString() + "\n");
             for (Particle particle : particles)
                 myWriter.write(particle.toString() + "\n");
@@ -43,7 +43,7 @@ public class Ovito {
         }
     }
 
-    public static void writeParticlesToFileXyz(String filePath, List<Particle> particles, List<FixedParticle> fixed) {
+    public static void writeParticlesToFileXyz(String filePath, List<Particle> particles, List<Limit> fixed) {
         writeParticlesToFileXyz(filePath, particles, fixed, "");
     }
 

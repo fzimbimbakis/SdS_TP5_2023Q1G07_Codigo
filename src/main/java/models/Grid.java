@@ -5,9 +5,7 @@ import models.particle.Particle;
 import utils.ParticleUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class Grid {
 
@@ -37,38 +35,19 @@ public class Grid {
         this.topRightLimit = topRightLimit;
     }
 
-    public List<Particle> getNeighbours(Double x, Double y){
-        List<Particle> particles = new ArrayList<>();
-
-        for (Double deltaX = -CELL_DIMENSION; deltaX <= CELL_DIMENSION; deltaX += CELL_DIMENSION){
-            for (Double deltaY = -CELL_DIMENSION; deltaY <= CELL_DIMENSION; deltaY += CELL_DIMENSION){
-                Cell cell = getCell(x + deltaX, y + deltaY);
-                if( cell == null )
-                    continue;
-                particles.addAll(cell.getParticles());
-            }
-        }
-
-        return particles;
-    }
-
-    public boolean remove(Particle particle){
-        double x = Math.min(MAX_X, particle.getX());
-        x = Math.max(0, x);
-        double y = Math.min(MAX_Y, particle.getY());
-        y = Math.max(0, y);
-        Cell cell = getCell(x, y);
-        if (cell != null) {
-            return cell.remove(particle);
-        }else throw new IllegalStateException("Cell does not exists");
-    }
+//    public boolean remove(Particle particle){
+//        double x = Math.min(DIM_X, particle.getPosition().getX());
+//        x = Math.max(0, x);
+//        double y = Math.min(DIM_Y, particle.getPosition().getY());
+//        y = Math.max(0, y);
+//        Cell cell = getCell(x, y);
+//        if (cell != null) {
+//            return cell.remove(particle);
+//        }else throw new IllegalStateException("Cell does not exists");
+//    }
 
     public void add(Particle particle){
-        double x = Math.min(MAX_X, particle.getX());
-        x = Math.max(0, x);
-        double y = Math.min(MAX_Y, particle.getY());
-        y = Math.max(0, y);
-        Cell cell = getCell(x, y);
+        Cell cell = getCell(particle.getPosition().getX(), particle.getPosition().getY());
         if (cell != null) {
             cell.add(particle);
         }else throw new IllegalStateException("Cell does not exists");
@@ -230,24 +209,25 @@ public class Grid {
             }
 
         }
+
+        updateForces();
     }
 
 
     private Cell getCell(double x, double y){
-        if(x > MAX_X || x < 0 || y < 0 || y > MAX_Y)
-            return null;
-        if(x == MAX_X)
-            x -= 1.0;
-        if(y == MAX_Y)
-            y -= 1.0;
-        int xi = getIndex(x);
-        int yi = getIndex(y);
-        Cell cell = map.get(xi).get(yi);
-        return cell;
+        if(x >= DIM_X || x < 0 || y < 0 || y >= DIM_Y)
+            throw new IllegalStateException();
+        int row = getIndexY(y);
+        int col = getIndexX(x);
+        return cells[row][col];
     }
 
-    private int getIndex(double value){
-        return (int)(((int)(value / CELL_DIMENSION)) * CELL_DIMENSION) ;
+    private int getIndexX(double value){
+        return (int)(value / CELL_DIMENSION_X) ;
+    }
+
+    private int getIndexY(double value){
+        return (int)(value / CELL_DIMENSION_Y) ;
     }
 
     private void moveFromCell( Particle particle, int row , int col, int newRow, int newCol){
@@ -288,4 +268,5 @@ public class Grid {
         }
     }
 
+}
 }
