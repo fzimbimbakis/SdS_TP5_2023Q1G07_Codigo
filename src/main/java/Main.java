@@ -33,8 +33,6 @@ public class Main {
 
         for (double i = 0; i < config.getMaxTime(); i++) {
 
-            System.out.println("Iteración: " + i);
-
             particleList.forEach(Particle::prediction);
             particleList.forEach(Particle::resetForce);
             grid.update();
@@ -42,9 +40,10 @@ public class Main {
             particleList.forEach(Particle::resetForce);
             grid.updateForces();
 
-            if (i % 100 == 0)
+            if (i % 1000 == 0) {
+                System.out.println("Iteración: " + i);
                 Ovito.writeParticlesToFileXyz(path, particleList, limits);
-
+            }
         }
 
 

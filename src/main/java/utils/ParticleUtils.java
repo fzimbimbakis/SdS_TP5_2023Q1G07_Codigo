@@ -8,29 +8,13 @@ import java.util.List;
 
 public class ParticleUtils {
 
-    private static Double randomEpsilon(Double min, Double max) {
-        return min + Math.random() * Math.abs(max - min);
-    }
 
-
-//    public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
-//        List<Particle> particles = new ArrayList<>();
-//        double x, y, radius;
-//        for (int i = 0; i < N; i++) {
-//            // Generate
-//            x = Math.random() * W;
-//            y = Math.random() * L;
-//            radius = Math.random() * 1.15;
-//            particles.add(new Particle(i, new Pair<>(x, y), radius, mass, dt));
-//        }
-//        return particles;
-//    }
 public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
     List<Particle> particles = new ArrayList<>();
     double x, y, radius;
     boolean overlap;
 
-    for (int i = 0; i < N; i++) {
+    for (int i = 1; i <= N; i++) {
         // Generate initial particle
         radius = 0.85 + Math.random() * (1.15 - 0.85);
         x = radius + Math.random() * (W - 2 * radius);

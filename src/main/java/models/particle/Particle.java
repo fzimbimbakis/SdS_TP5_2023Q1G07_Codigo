@@ -1,7 +1,7 @@
 package models.particle;
 
-import algorithms.Beeman;
 import models.Pair;
+import utils.ForcesUtils;
 
 import java.util.Objects;
 
@@ -19,45 +19,42 @@ public class Particle {
     private Pair<Double> prevAcceleration;
     private Pair<Double> actualAcceleration;
     private Pair<Double> actualVelocity;
-    private static final double GRAVITY = -981.0;
 
     public Particle(int id, Pair<Double> position, Double radius, Double mass, Double dt) {
         this.id = id;
         this.position = position;
         this.radius = radius;
         this.mass = mass;
-        this.force = new Pair<>(0.0, mass * GRAVITY);
+        this.force = new Pair<>(0.0, mass * ForcesUtils.GRAVITY);
         this.velocity = new Pair<>(0.0, 0.0);
         this.dt = dt;
         this.sqrDt = Math.pow(dt, 2);
 
-        prevAcceleration = new Pair<>(0.0, GRAVITY);
+        prevAcceleration = new Pair<>(0.0, ForcesUtils.GRAVITY);
     }
 
-    public void resetForce(){
+    public void resetForce() {
         force.setX(0.0);
         force.setY(0.0);
     }
 
-    public void addToForce(double x, double y){
+    public void addToForce(double x, double y) {
         force.setX(force.getX() + x);
         force.setY(force.getY() + y);
     }
 
-    public void addToForceY(double y){
-        force.setY(force.getY() + y);
-    }
-
-    public void addToForceX(double x){
-        force.setX(force.getX() + x);
+    public void addToForce(Pair<Double> pair) {
+        force.setX(force.getX() + pair.getX());
+        force.setY(force.getY() + pair.getY());
     }
 
     public Pair<Double> getForce() {
         return force;
     }
 
-    public Pair<Double> getAcceleration(){
-        return new Pair<>(getForce().getX()/getMass(), getForce().getY()/getMass());
+    public Pair<Double> getAcceleration() {
+        // La fuerza viene en Newtons
+        return new Pair<>((getForce().getX() * 100) / getMass(), (getForce().getY() * 100) / getMass());
     }
 
     public Pair<Double> getPosition() {
@@ -77,7 +74,7 @@ public class Particle {
     }
 
     public String toString() {
-        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + id;
+        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + id + " " + force.getX() + " " + force.getY();
     }
 
 
