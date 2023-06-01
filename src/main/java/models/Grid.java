@@ -43,8 +43,8 @@ public class Grid {
         rightLimitHole = topRightLimit.getPosition().getX() / 2 + holeSize / 2;
     }
 
-    public void shake(int t, int w){
-        movement = A*Math.sin(w*t);
+    public void shake(double t, double w) {
+        movement = A * Math.sin(w * t);
         bottomLeftLimit.setY(bottomLeftLimitInitialY + movement);
         topRightLimit.setY(topRightLimitInitialY + movement);
     }

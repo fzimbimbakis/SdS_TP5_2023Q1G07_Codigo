@@ -25,6 +25,10 @@ public class Main {
         limits.add(l2);
         Limit l3 = new Limit(config.getW(), 0.0);
         limits.add(l3);
+        Limit l4 = new Limit(config.getW() / 2 - config.getHoleSize() / 2, config.getL()/10);
+        limits.add(l4);
+        Limit l5 = new Limit(config.getW() / 2 + config.getHoleSize() / 2, config.getL()/10);
+        limits.add(l5);
 
         Grid grid = new Grid(l1, l2, config.getHoleSize());
 
@@ -37,7 +41,7 @@ public class Main {
 
         for (int i = 0; i < config.getMaxTime(); i++) {
 
-            grid.shake(i, config.getFrecuency());
+            grid.shake(i * config.getDt(), config.getFrecuency());
             particleList.forEach(Particle::prediction);
             particleList.forEach(Particle::resetForce);
             reInjectParticlesList = grid.update();
