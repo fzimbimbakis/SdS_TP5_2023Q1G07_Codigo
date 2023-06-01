@@ -15,6 +15,7 @@ public class JsonConfigReader {
     private final Double dt;
     private final Double maxTime;
     private final Integer N;
+    private final Double holeSize;
 
     public JsonConfigReader(String jsonConfigFilePath) {
         JSONParser jsonParser = new JSONParser();
@@ -29,6 +30,7 @@ public class JsonConfigReader {
             this.L = Double.parseDouble(jsonObject.get("L").toString());
             this.dt = Double.parseDouble(jsonObject.get("dt").toString());
             this.maxTime = Double.parseDouble(jsonObject.get("max_t").toString());
+            this.holeSize = Double.parseDouble(jsonObject.get("D").toString());
             this.N = Integer.parseInt(jsonObject.get("N").toString());
 
         } catch (IOException | ParseException e) {
@@ -59,5 +61,9 @@ public class JsonConfigReader {
 
     public Double getMaxTime() {
         return maxTime;
+    }
+
+    public Double getHoleSize() {
+        return holeSize;
     }
 }

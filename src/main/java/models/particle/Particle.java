@@ -12,6 +12,7 @@ public class Particle {
     private final Double radius;
     private final Double mass;
     private final int id;
+    private boolean reInjected = false;
 
     // Beeman information
     private final Double dt;
@@ -57,6 +58,10 @@ public class Particle {
         return new Pair<>((getForce().getX() * 100) / getMass(), (getForce().getY() * 100) / getMass());
     }
 
+    public void reInject(){
+        reInjected = true;
+    }
+
     public Pair<Double> getPosition() {
         return position;
     }
@@ -97,13 +102,17 @@ public class Particle {
     }
 
     public void correction(){
-        double newVx = actualVelocity.getX() + (1.0/3.0)*this.getAcceleration().getX()*dt + (5.0/6.0)* actualAcceleration.getX()*dt - (1.0/6.0)* prevAcceleration.getX()*dt;
-        double newVy = actualVelocity.getY() + (1.0/3.0)*this.getAcceleration().getY()*dt + (5.0/6.0)* actualAcceleration.getY()*dt - (1.0/6.0)* prevAcceleration.getY()*dt;
+        if (reInjected){
+            this.velocity = new Pair<>(0.0, 0.0);
+            reInjected = false;
+            prevAcceleration = new Pair<>(0.0, ForcesUtils.GRAVITY);
+        }else{
+            double newVx = actualVelocity.getX() + (1.0/3.0)*this.getAcceleration().getX()*dt + (5.0/6.0)* actualAcceleration.getX()*dt - (1.0/6.0)* prevAcceleration.getX()*dt;
+            double newVy = actualVelocity.getY() + (1.0/3.0)*this.getAcceleration().getY()*dt + (5.0/6.0)* actualAcceleration.getY()*dt - (1.0/6.0)* prevAcceleration.getY()*dt;
+            this.velocity = new Pair<>(newVx, newVy);
+            prevAcceleration = actualAcceleration;
+        }
 
-
-        this.velocity = new Pair<>(newVx, newVy);
-
-        prevAcceleration = actualAcceleration;
     }
 
     @Override

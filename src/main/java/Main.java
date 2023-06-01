@@ -19,28 +19,36 @@ public class Main {
         List<Particle> particleList = ParticleUtils.generateParticles(config.getW(), config.getL(), config.getN(), config.getMass(), config.getDt());
 
         List<Limit> limits = new ArrayList<>();
-        Limit l1 = new Limit(config.getW(), config.getL());
+        Limit l1 = new Limit(config.getW(), config.getL() + config.getL()/10);
         limits.add(l1);
-        Limit l2 = new Limit(0.0, 0.0);
+        Limit l2 = new Limit(0.0, config.getL()/10);
         limits.add(l2);
+        Limit l3 = new Limit(config.getW(), 0.0);
+        limits.add(l3);
 
-        Grid grid = new Grid(l1, l2);
+        Grid grid = new Grid(l1, l2, config.getHoleSize());
 
         grid.addAll(particleList);
 
         String path = Ovito.createFile("output", "xyz");
         Ovito.writeParticlesToFileXyz(path, particleList, limits);
 
+        List<Particle> reInjectParticlesList;
+
         for (double i = 0; i < config.getMaxTime(); i++) {
 
             particleList.forEach(Particle::prediction);
             particleList.forEach(Particle::resetForce);
-            grid.update();
+            reInjectParticlesList = grid.update();
+            //reInjectParticlesList.forEach(particleList::remove);
+            ParticleUtils.reInjectParticles(particleList, reInjectParticlesList, config.getW(), config.getL());
+            grid.addAll(reInjectParticlesList);
+            grid.updateForces();
             particleList.forEach(Particle::correction);
             particleList.forEach(Particle::resetForce);
             grid.updateForces();
 
-            if (i % 1000 == 0) {
+            if (i % 500 == 0) {
                 System.out.println("Iteración: " + i);
                 Ovito.writeParticlesToFileXyz(path, particleList, limits);
             }
