@@ -8,7 +8,7 @@ import utils.ParticleUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Main {
+public class BasicMain {
 
     private static final String JSON_CONFIG_PATH = "./src/main/java/config.json";
 
@@ -39,7 +39,9 @@ public class Main {
 
         List<Particle> reInjectParticlesList;
 
-        for (int i = 0; i < config.getMaxTime(); i++) {
+        int iterations = (int)(config.getMaxTime() / config.getDt());
+
+        for (int i = 0; i < iterations; i++) {
 
             grid.shake(i * config.getDt(), config.getFrecuency());
             particleList.forEach(Particle::prediction);
@@ -58,12 +60,5 @@ public class Main {
                 Ovito.writeParticlesToFileXyz(path, particleList, limits);
             }
         }
-
-
-
-
-
-
-
     }
 }

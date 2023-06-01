@@ -21,6 +21,10 @@ public class Particle {
     private Pair<Double> actualAcceleration;
     private Pair<Double> actualVelocity;
 
+    public Particle copy(){
+        return new Particle(id, position, radius, mass, dt);
+    }
+
     public Particle(int id, Pair<Double> position, Double radius, Double mass, Double dt) {
         this.id = id;
         this.position = position;
