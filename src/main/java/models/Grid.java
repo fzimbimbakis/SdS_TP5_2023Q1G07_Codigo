@@ -10,7 +10,7 @@ import java.util.List;
 import static utils.ForcesUtils.*;
 
 public class Grid {
-
+    private static final double A = 0.15;
     private static final double DIM_X = 20.0;
     private static final double DIM_Y = 77.0; // se tiene en cuenta el espacio fuera de la "caja"
     private static final int cols = 8;
@@ -20,8 +20,11 @@ public class Grid {
     private static final double CELL_DIMENSION_X = DIM_X / (double) cols;
     private final Limit topRightLimit;
     private final Limit bottomLeftLimit;
+    private final double topRightLimitInitialY;
+    private final double bottomLeftLimitInitialY;
     private final double leftLimitHole;
     private final double rightLimitHole;
+    private double movement;
 
     private final Cell[][] cells;
 
@@ -34,8 +37,16 @@ public class Grid {
         }
         this.bottomLeftLimit = bottomLeftLimit;
         this.topRightLimit = topRightLimit;
+        this.bottomLeftLimitInitialY = bottomLeftLimit.getY();
+        this.topRightLimitInitialY = topRightLimit.getY();
         leftLimitHole = topRightLimit.getPosition().getX() / 2 - holeSize / 2;
         rightLimitHole = topRightLimit.getPosition().getX() / 2 + holeSize / 2;
+    }
+
+    public void shake(int t, int w){
+        movement = A*Math.sin(w*t);
+        bottomLeftLimit.setY(bottomLeftLimitInitialY + movement);
+        topRightLimit.setY(topRightLimitInitialY + movement);
     }
 
     public void add(Particle particle) {
@@ -148,7 +159,7 @@ public class Grid {
     private void updateForceFloor(List<Particle> particles) {
         particles.forEach(p -> {
             if (outsideHole(p)) { //si pasa por el agujero, no choca con la pared
-                double superposition = p.getRadius() - (p.getPosition().getY() - bottomLeftLimit.getPosition().getY());
+                double superposition = p.getRadius() - (p.getPosition().getY() - bottomLeftLimit.getY());
                 if (superposition > 0)
                     p.addToForce(
                             getWallForce(superposition, p.getVelocity(), FloorNormalVersor)
@@ -274,8 +285,8 @@ public class Grid {
     }
 
     private Particle updateParticleCell(Particle particle, int row, int col) {
-        double inferiorLimitY = row * CELL_DIMENSION_Y;
-        double superiorLimitY = (row + 1) * CELL_DIMENSION_Y;
+        double inferiorLimitY = row * CELL_DIMENSION_Y + movement;
+        double superiorLimitY = (row + 1) * CELL_DIMENSION_Y + movement;
         double inferiorLimitX = col * CELL_DIMENSION_X;
         double superiorLimitX = (col + 1) * CELL_DIMENSION_X;
 

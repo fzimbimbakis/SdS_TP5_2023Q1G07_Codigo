@@ -4,14 +4,18 @@ import models.Pair;
 
 public class Limit {
 
-    private Pair<Double> position;
+    private final Pair<Double> position;
 
     public Limit(Double x, Double y) {
         this.position = new Pair<>(x, y);
     }
 
-    public void setPosition(Pair<Double> position){
-        this.position = position;
+    public void setY(Double Y){
+        this.position.setY(Y);
+    }
+
+    public Double getY(){
+        return this.position.getY();
     }
 
     public Pair<Double> getPosition() {

@@ -16,6 +16,7 @@ public class JsonConfigReader {
     private final Double maxTime;
     private final Integer N;
     private final Double holeSize;
+    private final Integer frecuency;
 
     public JsonConfigReader(String jsonConfigFilePath) {
         JSONParser jsonParser = new JSONParser();
@@ -32,6 +33,7 @@ public class JsonConfigReader {
             this.maxTime = Double.parseDouble(jsonObject.get("max_t").toString());
             this.holeSize = Double.parseDouble(jsonObject.get("D").toString());
             this.N = Integer.parseInt(jsonObject.get("N").toString());
+            this.frecuency = Integer.parseInt(jsonObject.get("w").toString());
 
         } catch (IOException | ParseException e) {
             throw new RuntimeException("Error reading parameters from config.json");
@@ -65,5 +67,9 @@ public class JsonConfigReader {
 
     public Double getHoleSize() {
         return holeSize;
+    }
+
+    public Integer getFrecuency() {
+        return frecuency;
     }
 }

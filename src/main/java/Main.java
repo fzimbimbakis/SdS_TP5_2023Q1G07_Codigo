@@ -35,8 +35,9 @@ public class Main {
 
         List<Particle> reInjectParticlesList;
 
-        for (double i = 0; i < config.getMaxTime(); i++) {
+        for (int i = 0; i < config.getMaxTime(); i++) {
 
+            grid.shake(i, config.getFrecuency());
             particleList.forEach(Particle::prediction);
             particleList.forEach(Particle::resetForce);
             reInjectParticlesList = grid.update();
@@ -48,7 +49,7 @@ public class Main {
             particleList.forEach(Particle::resetForce);
             grid.updateForces();
 
-            if (i % 500 == 0) {
+            if (i % 100 == 0) {
                 System.out.println("Iteración: " + i);
                 Ovito.writeParticlesToFileXyz(path, particleList, limits);
             }
