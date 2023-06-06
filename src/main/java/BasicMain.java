@@ -50,15 +50,16 @@ public class BasicMain {
             //reInjectParticlesList.forEach(particleList::remove);
             ParticleUtils.reInjectParticles(particleList, reInjectParticlesList, config.getW(), config.getL());
             grid.addAll(reInjectParticlesList);
+            particleList.forEach(Particle::resetForce);
             grid.updateForces();
             particleList.forEach(Particle::correction);
             particleList.forEach(Particle::resetForce);
             grid.updateForces();
 
-            if (i % 100 == 0) {
+//            if (i % 100 == 0) {
                 System.out.println("Iteración: " + i);
                 Ovito.writeParticlesToFileXyz(path, particleList, limits);
-            }
+//            }
         }
     }
 }

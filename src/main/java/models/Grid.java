@@ -60,7 +60,16 @@ public class Grid {
         particles.forEach(this::add);
     }
 
-    private double pairDifference(Pair<Double> a, Pair<Double> b) {
+    private static final Pair FloorNormalVersor = new Pair(0.0, -1.0);
+    private static final Pair TopNormalVector = new Pair(0.0, 1.0);
+    private static final Pair LeftNormalVector = new Pair(-1.0, 0.0);
+    private static final Pair RightNormalVector = new Pair(1.0, 0.0);
+
+    private boolean outsideHole(Particle particle) {
+        return particle.getPosition().getX() < leftLimitHole || particle.getPosition().getX() > rightLimitHole;
+    }
+
+    private double pairDifference(Pair a, Pair b) {
         return Math.sqrt(
                 Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2)
         );
@@ -83,23 +92,11 @@ public class Grid {
 
                                 if (superposition > 0 && !n.equals(p)) {
 
-                                    Pair<Double> normalVersor = new Pair<>(
-                                            (n.getPosition().getX() - p.getPosition().getX()) / diff,
-                                            (n.getPosition().getY() - p.getPosition().getY()) / diff
-                                    );
+                                    Pair normalVersor = n.getPosition().subtract(p.getPosition()).scale(1.0 / diff);
+                                    p.addToForce(getNormalForce(superposition, normalVersor));
 
-                                    p.addToForce(
-                                            getNormalForce(superposition) * normalVersor.getX(),
-                                            getNormalForce(superposition) * normalVersor.getY()
-                                    );
-
-                                    Pair<Double> relativeVelocity = ForcesUtils.getRelativeVelocity(p, n);
-                                    Pair<Double> tangencialForce = getTangencialForce(superposition, relativeVelocity, normalVersor);
-
-                                    p.addToForce(
-                                            tangencialForce.getX(),
-                                            tangencialForce.getY()
-                                    );
+                                    Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
+                                    p.addToForce(getTangencialForce(superposition, relativeVelocity, normalVersor));
                                 }
                             });
 
@@ -112,26 +109,18 @@ public class Grid {
 
                                         if (superposition > 0 && !n.equals(p)) {
 
-                                            Pair<Double> normalVersor = new Pair<>(
-                                                    (n.getPosition().getX() - p.getPosition().getX()) / diff,
-                                                    (n.getPosition().getY() - p.getPosition().getY()) / diff
-                                            );
+                                            Pair normalVersor = n.getPosition().subtract(p.getPosition()).scale(1.0 / diff);
 
-                                            Pair<Double> normalForce = getNormalForce(superposition, normalVersor);
+                                            Pair normalForce = getNormalForce(superposition, normalVersor);
 
-                                            p.addToForce(normalForce.getX(), normalForce.getY());
-                                            n.addToForce(-1 * normalForce.getX(), -1 * normalForce.getY());
+                                            p.addToForce(normalForce);
+                                            n.addToForce(normalForce.scale(-1.0));
 
-                                            Pair<Double> relativeVelocity = ForcesUtils.getRelativeVelocity(p, n);
-                                            Pair<Double> tangencialForce = getTangencialForce(superposition, relativeVelocity, normalVersor);
+                                            Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
+                                            Pair tangencialForce = getTangencialForce(superposition, relativeVelocity, normalVersor);
 
-                                            p.addToForce(
-                                                    tangencialForce.getX(),
-                                                    tangencialForce.getY()
-                                            );
-                                            n.addToForce(
-                                                    -tangencialForce.getX(),
-                                                    -tangencialForce.getY());
+                                            p.addToForce(tangencialForce);
+                                            n.addToForce(tangencialForce.scale(-1.0));
                                         }
                                     }
                             );
@@ -154,12 +143,10 @@ public class Grid {
         }
     }
 
-    private static final Pair<Double> FloorNormalVersor = new Pair<>(0.0, -1.0);
-
     private void updateForceFloor(List<Particle> particles) {
         particles.forEach(p -> {
             if (outsideHole(p)) { //si pasa por el agujero, no choca con la pared
-                double superposition = p.getRadius() - (p.getPosition().getY() - bottomLeftLimit.getY());
+                double superposition = p.getRadius() - Math.abs(p.getPosition().getY() - bottomLeftLimit.getY());
                 if (superposition > 0)
                     p.addToForce(
                             getWallForce(superposition, p.getVelocity(), FloorNormalVersor)
@@ -168,15 +155,9 @@ public class Grid {
         });
     }
 
-    private boolean outsideHole(Particle particle){
-        return particle.getPosition().getX() < leftLimitHole || particle.getPosition().getX() > rightLimitHole;
-    }
-
-    private static final Pair<Double> TopNormalVector = new Pair<>(0.0, 1.0);
-
     private void updateForceTop(List<Particle> particles) {
         particles.forEach(p -> {
-            double superposition = p.getRadius() - (topRightLimit.getPosition().getY() - p.getPosition().getY());
+            double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getY() - p.getPosition().getY());
             if (superposition > 0)
                 p.addToForce(
                         getWallForce(superposition, p.getVelocity(), TopNormalVector)
@@ -184,11 +165,9 @@ public class Grid {
         });
     }
 
-    private static final Pair<Double> LeftNormalVector = new Pair<>(-1.0, 0.0);
-
     private void updateForceLeftWall(List<Particle> particles) {
         particles.forEach(p -> {
-            double superposition = p.getRadius() - (p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
+            double superposition = p.getRadius() - Math.abs(p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
             if (superposition > 0)
                 p.addToForce(
                         getWallForce(superposition, p.getVelocity(), LeftNormalVector)
@@ -196,11 +175,9 @@ public class Grid {
         });
     }
 
-    private static final Pair<Double> RightNormalVector = new Pair<>(1.0, 0.0);
-
     private void updateForceRightWall(List<Particle> particles) {
         particles.forEach(p -> {
-            double superposition = p.getRadius() - (topRightLimit.getPosition().getX() - p.getPosition().getX());
+            double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getX() - p.getPosition().getX());
             if (superposition > 0)
                 p.addToForce(
                         getWallForce(superposition, p.getVelocity(), RightNormalVector)
@@ -276,47 +253,55 @@ public class Grid {
                 return null;
             }
         } catch (IndexOutOfBoundsException e) {
-            //System.out.println("Particle x: " + particle.getPosition().getX());
-            //System.out.println("Particle y: " + particle.getPosition().getY());
-            //System.out.println("newCol: " + newCol);
-            //System.out.println("newRow: " + newRow);
-            throw new IllegalStateException();
+            throw new IllegalStateException(particle.getId() + " " + newRow + " " + newCol);
         }
     }
 
     private Particle updateParticleCell(Particle particle, int row, int col) {
-        double inferiorLimitY = row * CELL_DIMENSION_Y + movement;
-        double superiorLimitY = (row + 1) * CELL_DIMENSION_Y + movement;
-        double inferiorLimitX = col * CELL_DIMENSION_X;
-        double superiorLimitX = (col + 1) * CELL_DIMENSION_X;
+//        double inferiorLimitY = ((double)(row)) * CELL_DIMENSION_Y + movement;
+//        double superiorLimitY = ((double)(row + 1)) * CELL_DIMENSION_Y + movement;
+//        double inferiorLimitX = ((double)col) * CELL_DIMENSION_X;
+//        double superiorLimitX = ((double)(col + 1)) * CELL_DIMENSION_X;
 
-        double X = particle.getPosition().getX();
-        double Y = particle.getPosition().getY();
+        Pair inferiorLimit = new Pair(((double) col) * CELL_DIMENSION_X, ((double) row) * CELL_DIMENSION_Y + movement);
+        Pair superiorLimit = new Pair(((double) (col + 1)) * CELL_DIMENSION_X, ((double) (row + 1)) * CELL_DIMENSION_Y + movement);
 
-        if (X >= superiorLimitX) {
-            if (Y >= superiorLimitY) { // se va para arriba a la derecha
-                return moveFromCell(particle, row, col, row + 1, col + 1);
-            } else if (Y < inferiorLimitY) { // se va para abajo a la derecha
-                return moveFromCell(particle, row, col, row - 1, col + 1);
-            } else { // se va para la derecha
-                return moveFromCell(particle, row, col, row, col + 1);
-            }
-        } else if (X < inferiorLimitX) {
-            if (Y >= superiorLimitY) { // se va para arriba a la izq
-                return moveFromCell(particle, row, col, row + 1, col - 1);
-            } else if (Y < inferiorLimitY) { // se va para abajo a la izq
-                return moveFromCell(particle, row, col, row - 1, col - 1);
-            } else { // se va para la izquierda
-                return moveFromCell(particle, row, col, row, col - 1);
-            }
-        } else {
-            if (Y >= superiorLimitY) { // se va para arriba
-                return moveFromCell(particle, row, col, row + 1, col);
-            } else if (Y < inferiorLimitY) { // se va para abajo
-                return moveFromCell(particle, row, col, row - 1, col);
-            }
-            return null;
-        }
+        Pair inferiorDiff = particle.getPosition().subtract(inferiorLimit);
+        Pair superiorDiff = particle.getPosition().subtract(superiorLimit);
+
+        return moveFromCell(particle, row, col,
+                inferiorDiff.getY() < 0 ? row - 1 : superiorDiff.getY() >= 0 ? row + 1 : row,
+                inferiorDiff.getX() < 0 ? col - 1 : superiorDiff.getX() >= 0 ? col + 1 : col
+        );
+
+//        double X = particle.getPosition().getX();
+//        double Y = particle.getPosition().getY();
+//
+//
+//        if (X >= superiorLimitX) {
+//            if (Y >= superiorLimitY) { // se va para arriba a la derecha
+//                return moveFromCell(particle, row, col, row + 1, col + 1);
+//            } else if (Y < inferiorLimitY) { // se va para abajo a la derecha
+//                return moveFromCell(particle, row, col, row - 1, col + 1);
+//            } else { // se va para la derecha
+//                return moveFromCell(particle, row, col, row, col + 1);
+//            }
+//        } else if (X < inferiorLimitX) {
+//            if (Y >= superiorLimitY) { // se va para arriba a la izq
+//                return moveFromCell(particle, row, col, row + 1, col - 1);
+//            } else if (Y < inferiorLimitY) { // se va para abajo a la izq
+//                return moveFromCell(particle, row, col, row - 1, col - 1);
+//            } else { // se va para la izquierda
+//                return moveFromCell(particle, row, col, row, col - 1);
+//            }
+//        } else {
+//            if (Y >= superiorLimitY) { // se va para arriba
+//                return moveFromCell(particle, row, col, row + 1, col);
+//            } else if (Y < inferiorLimitY) { // se va para abajo
+//                return moveFromCell(particle, row, col, row - 1, col);
+//            }
+//            return null;
+//        }
 
     }
 }

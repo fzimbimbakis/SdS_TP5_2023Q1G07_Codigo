@@ -20,7 +20,7 @@ public class ParticleUtils {
         radius = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
         x = radius + Math.random() * (W - 2 * radius);
         y = radius + L/10 + Math.random() * (L - 2 * radius);
-        Particle newParticle = new Particle(i, new Pair<>(x, y), radius, mass, dt);
+        Particle newParticle = new Particle(i, new Pair(x, y), radius, mass, dt);
 
         overlap = false;
 

@@ -4,10 +4,10 @@ import models.Pair;
 
 public class Limit {
 
-    private final Pair<Double> position;
+    private final Pair position;
 
     public Limit(Double x, Double y) {
-        this.position = new Pair<>(x, y);
+        this.position = new Pair(x, y);
     }
 
     public void setY(Double Y){
@@ -18,7 +18,7 @@ public class Limit {
         return this.position.getY();
     }
 
-    public Pair<Double> getPosition() {
+    public Pair getPosition() {
         return position;
     }
 

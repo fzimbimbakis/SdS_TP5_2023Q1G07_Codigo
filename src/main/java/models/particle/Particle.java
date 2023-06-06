@@ -6,9 +6,9 @@ import utils.ForcesUtils;
 import java.util.Objects;
 
 public class Particle {
-    private final Pair<Double> force;
-    private Pair<Double> position;
-    private Pair<Double> velocity;
+    private final static double B = (2.0 / 3.0);
+    private final static double C = -(1.0 / 6.0);
+    private final Pair force;
     private final Double radius;
     private final Double mass;
     private final int id;
@@ -17,26 +17,11 @@ public class Particle {
     // Beeman information
     private final Double dt;
     private final Double sqrDt;
-    private Pair<Double> prevAcceleration;
-    private Pair<Double> actualAcceleration;
-    private Pair<Double> actualVelocity;
-
-    public Particle copy(){
-        return new Particle(id, position, radius, mass, dt);
-    }
-
-    public Particle(int id, Pair<Double> position, Double radius, Double mass, Double dt) {
-        this.id = id;
-        this.position = position;
-        this.radius = radius;
-        this.mass = mass;
-        this.force = new Pair<>(0.0, mass * ForcesUtils.GRAVITY);
-        this.velocity = new Pair<>(0.0, 0.0);
-        this.dt = dt;
-        this.sqrDt = Math.pow(dt, 2);
-
-        prevAcceleration = new Pair<>(0.0, ForcesUtils.GRAVITY);
-    }
+    private Pair position;
+    private Pair velocity;
+    private Pair prevAcceleration;
+    private Pair actualAcceleration;
+    private Pair actualVelocity;
 
     public void resetForce() {
         force.setX(0.0);
@@ -48,30 +33,34 @@ public class Particle {
         force.setY(force.getY() + y);
     }
 
-    public void addToForce(Pair<Double> pair) {
+    public Particle(int id, Pair position, Double radius, Double mass, Double dt) {
+        this.id = id;
+        this.position = position;
+        this.radius = radius;
+        this.mass = mass;
+        this.force = new Pair(0.0, mass * ForcesUtils.GRAVITY);
+        this.velocity = new Pair(0.0, 0.0);
+        this.dt = dt;
+        this.sqrDt = Math.pow(dt, 2);
+
+        prevAcceleration = new Pair(0.0, ForcesUtils.GRAVITY);
+    }
+
+    public Particle copy() {
+        return new Particle(id, position, radius, mass, dt);
+    }
+
+    public void addToForce(Pair pair) {
         force.setX(force.getX() + pair.getX());
         force.setY(force.getY() + pair.getY());
     }
 
-    public Pair<Double> getForce() {
-        return force;
+    public Pair getAcceleration() {
+        return force.scale(1.0 / mass);
     }
 
-    public Pair<Double> getAcceleration() {
-        // La fuerza viene en Newtons
-        return new Pair<>((getForce().getX() * 100) / getMass(), (getForce().getY() * 100) / getMass());
-    }
-
-    public void reInject(){
+    public void reInject() {
         reInjected = true;
-    }
-
-    public Pair<Double> getPosition() {
-        return position;
-    }
-
-    public Pair<Double> getVelocity() {
-        return velocity;
     }
 
     public Double getRadius() {
@@ -86,34 +75,64 @@ public class Particle {
         return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + id + " " + force.getX() + " " + force.getY();
     }
 
+    public Pair getPosition() {
+        return position;
+    }
+
+    public Pair getVelocity() {
+        return velocity;
+    }
 
     // BEEMAN
     public void prediction() {
 
-        double newX = this.getPosition().getX() + this.getVelocity().getX() * dt + (2.0 / 3.0) * this.getAcceleration().getX() * sqrDt - (1.0 / 6.0) * prevAcceleration.getX() * sqrDt;
-        double newY = this.getPosition().getY() + this.getVelocity().getY() * dt + (2.0 / 3.0) * this.getAcceleration().getY() * sqrDt - (1.0 / 6.0) * prevAcceleration.getY() * sqrDt;
+//        double newX = this.getPosition().getX() + this.getVelocity().getX() * dt + (2.0 / 3.0) * this.getAcceleration().getX() * sqrDt - (1.0 / 6.0) * prevAcceleration.getX() * sqrDt;
+//        double newY = this.getPosition().getY() + this.getVelocity().getY() * dt + (2.0 / 3.0) * this.getAcceleration().getY() * sqrDt - (1.0 / 6.0) * prevAcceleration.getY() * sqrDt;
 
-        //System.out.println(newX + " " + newY);
-        double predictedVx = this.getVelocity().getX() + 1.5 * this.getAcceleration().getX() * dt - 0.5 * prevAcceleration.getX() * dt;
-        double predictedVy = this.getVelocity().getY() + 1.5 * this.getAcceleration().getY() * dt - 0.5 * prevAcceleration.getY() * dt;
+        this.position = this.position.sum(
+                this.velocity.scale(dt).sum(
+                        this.getAcceleration().scale(sqrDt * B).sum(
+                                prevAcceleration.scale(C * sqrDt)
+                        )
+                )
+        );
 
-        actualVelocity = this.getVelocity();
-        actualAcceleration = this.getAcceleration();
+        this.actualVelocity = this.getVelocity();
+        this.actualAcceleration = this.getAcceleration();
 
-        this.position = new Pair<>(newX, newY);
-        this.velocity = new Pair<>(predictedVx, predictedVy);
+        this.velocity = this.actualVelocity.sum(
+                this.actualAcceleration.scale(1.5 * dt).sum(
+                        prevAcceleration.scale(-0.5 * dt)
+                )
+        );
+
+//        double predictedVx = this.getVelocity().getX() + 1.5 * this.getAcceleration().getX() * dt - 0.5 * prevAcceleration.getX() * dt;
+//        double predictedVy = this.getVelocity().getY() + 1.5 * this.getAcceleration().getY() * dt - 0.5 * prevAcceleration.getY() * dt;
+//
+//
+////        this.position = new Pair(newX, newY);
+//        this.velocity = new Pair(predictedVx, predictedVy);
 
     }
 
     public void correction(){
         if (reInjected){
-            this.velocity = new Pair<>(0.0, 0.0);
+            this.velocity = new Pair(0.0, 0.0);
             reInjected = false;
-            prevAcceleration = new Pair<>(0.0, ForcesUtils.GRAVITY);
-        }else{
-            double newVx = actualVelocity.getX() + (1.0/3.0)*this.getAcceleration().getX()*dt + (5.0/6.0)* actualAcceleration.getX()*dt - (1.0/6.0)* prevAcceleration.getX()*dt;
-            double newVy = actualVelocity.getY() + (1.0/3.0)*this.getAcceleration().getY()*dt + (5.0/6.0)* actualAcceleration.getY()*dt - (1.0/6.0)* prevAcceleration.getY()*dt;
-            this.velocity = new Pair<>(newVx, newVy);
+            prevAcceleration = new Pair(0.0, ForcesUtils.GRAVITY);
+        }else {
+//            double newVx = actualVelocity.getX() + (1.0/3.0)*this.getAcceleration().getX()*dt + (5.0/6.0)* actualAcceleration.getX()*dt - (1.0/6.0)* prevAcceleration.getX()*dt;
+//            double newVy = actualVelocity.getY() + (1.0/3.0)*this.getAcceleration().getY()*dt + (5.0/6.0)* actualAcceleration.getY()*dt - (1.0/6.0)* prevAcceleration.getY()*dt;
+//            this.velocity = new Pair(newVx, newVy);
+
+            this.velocity = actualVelocity.sum(
+                    this.getAcceleration().scale((1.0 / 3.0) * dt).sum(
+                            actualAcceleration.scale((5.0 / 6.0) * dt).sum(
+                                    prevAcceleration.scale((1.0 / 6.0) * dt)
+                            )
+                    )
+            );
+
             prevAcceleration = actualAcceleration;
         }
 
@@ -130,5 +149,9 @@ public class Particle {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public int getId() {
+        return id;
     }
 }
