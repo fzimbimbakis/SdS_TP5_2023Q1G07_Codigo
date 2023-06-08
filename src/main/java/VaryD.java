@@ -19,7 +19,7 @@ public class VaryD {
 
         List<Particle> particleList = ParticleUtils.generateParticles(config.getW(), config.getL(), config.getN(), config.getMass(), config.getDt());
 
-        double[] holeSizes = {4.0, 5.0, 6.0};
+        double[] holeSizes = {3.0, 4.0, 5.0, 6.0};
 
         List<GranularMediaSystem> systems = new ArrayList<>();
 
@@ -30,7 +30,7 @@ public class VaryD {
                     config.getL(),
                     config.getW(),
                     config.getDt(),
-                    config.getHoleSize(),
+                    holeSize,
                     config.getMaxTime(),
                     config.getFrecuency(),
                     "output_" + holeSize + "_",
