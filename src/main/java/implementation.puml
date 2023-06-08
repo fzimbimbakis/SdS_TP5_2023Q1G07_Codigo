@@ -1,0 +1,58 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class GranularMediaSystem{
+- double L, W, dt, frequency
+- List<Particle> particles
+- Grid grid
+- List<Double> times
++ void run()
+}
+
+
+class Grid{
+- {static} Double DIM_X
+- {static} Double DIM_Y
+- {static} Double CELL_DIMENSION_Y
+- {static} Double CELL_DIMENSION_X
+- Cell[][] cells;
+
++ void shake(double t, double w)
++ void add(Particle particle)
++ void add(Particle particle)
++ void updateForces()
++ List<Particle> update()
+}
+
+class Cell{
+- List<Particle> particles
++ void add(Particle particle)
++ boolean remove(Particle particle)
++ List<Particle> getParticles()
+}
+
+
+class Particle{
+- Pair<Double> force;
+- Pair<Double> position;
+- Pair<Double> velocity;
+- Double radius;
+- Double mass;
+- int id;
+
++ void resetForce()
++ void updateForce(List<Particle> particles)
++ void addToForce(Pair<Double> pair)
++ void prediction()
++ void correction()
+}
+
+
+
+GranularMediaSystem *-- Particle
+GranularMediaSystem *-- Grid
+Grid *-- Cell
+Cell *-- Particle
+
+
+@enduml
