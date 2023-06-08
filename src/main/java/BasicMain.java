@@ -45,11 +45,7 @@ public class BasicMain {
 
             grid.shake(i * config.getDt(), config.getFrecuency());
             particleList.forEach(Particle::prediction);
-            particleList.forEach(Particle::resetForce);
-            reInjectParticlesList = grid.update();
-            //reInjectParticlesList.forEach(particleList::remove);
-            ParticleUtils.reInjectParticles(particleList, reInjectParticlesList, config.getW(), config.getL());
-            grid.addAll(reInjectParticlesList);
+            grid.update();
             particleList.forEach(Particle::resetForce);
             grid.updateForces();
             particleList.forEach(Particle::correction);

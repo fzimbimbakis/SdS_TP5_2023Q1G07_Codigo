@@ -8,18 +8,19 @@ import java.util.List;
 
 public class ParticleUtils {
 
-    private static final double MAX_RADIUS = 1.15;
-    private static final double MIN_RADIUS = 0.85;
-    public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
-    List<Particle> particles = new ArrayList<>();
-    double x, y, radius;
-    boolean overlap;
+    private static final double MAX_RADIUS = 0.0115;
+    private static final double MIN_RADIUS = 0.0085;
 
-    for (int i = 1; i <= N; i++) {
-        // Generate initial particle
-        radius = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
-        x = radius + Math.random() * (W - 2 * radius);
-        y = radius + L/10 + Math.random() * (L - 2 * radius);
+    public static List<Particle> generateParticles(Double W, Double L, int N, Double mass, Double dt) {
+        List<Particle> particles = new ArrayList<>();
+        double x, y, radius;
+        boolean overlap;
+
+        for (int i = 1; i <= N; i++) {
+            // Generate initial particle
+            radius = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
+            x = radius + Math.random() * (W - 2 * radius);
+            y = radius + L / 10 + Math.random() * (L - 2 * radius);
         Particle newParticle = new Particle(i, new Pair(x, y), radius, mass, dt);
 
         overlap = false;
@@ -89,4 +90,9 @@ public class ParticleUtils {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
+    public static boolean overlap(Particle p1, Particle p2) {
+        if (!p1.equals(p2)) {
+            return ParticleUtils.calculateDistance(p1, p2) < p1.getRadius() + p2.getRadius();
+        } else return false;
+    }
 }

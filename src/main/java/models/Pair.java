@@ -61,5 +61,8 @@ public class Pair {
         return new Pair(this.x + other.x, this.y + other.y);
     }
 
+    public double module(Pair other) {
+        return Math.sqrt(Math.pow(x - other.x, 2) + Math.pow(y - other.y, 2));
+    }
 
 }

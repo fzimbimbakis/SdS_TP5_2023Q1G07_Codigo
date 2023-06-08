@@ -128,7 +128,7 @@ public class Particle {
             this.velocity = actualVelocity.sum(
                     this.getAcceleration().scale((1.0 / 3.0) * dt).sum(
                             actualAcceleration.scale((5.0 / 6.0) * dt).sum(
-                                    prevAcceleration.scale((1.0 / 6.0) * dt)
+                                    prevAcceleration.scale(-(1.0 / 6.0) * dt) // TODO CHECK signo menos
                             )
                     )
             );

@@ -3,6 +3,7 @@ package models;
 import models.particle.Limit;
 import models.particle.Particle;
 import utils.ForcesUtils;
+import utils.ParticleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,10 @@ import java.util.List;
 import static utils.ForcesUtils.*;
 
 public class Grid {
-    private static final double A = 0.15;
-    private static final double DIM_X = 20.0;
-    private static final double DIM_Y = 77.0; // se tiene en cuenta el espacio fuera de la "caja"
+    private static final double A = 0.0015;
+    private static final double ZERO = 0.0;
+    private static final double DIM_X = 0.2;
+    private static final double DIM_Y = 0.77; // se tiene en cuenta el espacio fuera de la "caja"
     private static final int cols = 8;
     private static final int rowsInside = 30;
     private static final int rowsTotal = 33;
@@ -60,10 +62,10 @@ public class Grid {
         particles.forEach(this::add);
     }
 
-    private static final Pair FloorNormalVersor = new Pair(0.0, -1.0);
-    private static final Pair TopNormalVector = new Pair(0.0, 1.0);
-    private static final Pair LeftNormalVector = new Pair(-1.0, 0.0);
-    private static final Pair RightNormalVector = new Pair(1.0, 0.0);
+    private static final Pair FloorNormalVersor = new Pair(ZERO, -1.0);
+    private static final Pair TopNormalVector = new Pair(ZERO, 1.0);
+    private static final Pair LeftNormalVector = new Pair(-1.0, ZERO);
+    private static final Pair RightNormalVector = new Pair(1.0, ZERO);
 
     private boolean outsideHole(Particle particle) {
         return particle.getPosition().getX() < leftLimitHole || particle.getPosition().getX() > rightLimitHole;
@@ -84,19 +86,19 @@ public class Grid {
                 current.forEach(
                         p -> {
                             // Add gravity
-                            p.addToForce(0.0, p.getMass() * ForcesUtils.GRAVITY);
+                            p.addToForce(ZERO, p.getMass() * ForcesUtils.GRAVITY);
 
                             current.forEach(n -> {
-                                double diff = pairDifference(p.getPosition(), n.getPosition());
-                                double superposition = p.getRadius() + n.getRadius() - diff;
+                                double diff = p.getPosition().module(n.getPosition());
+                                double sumRad = p.getRadius() + n.getRadius();
 
-                                if (superposition > 0 && !n.equals(p)) {
+                                if (diff < sumRad && !n.equals(p)) {
 
                                     Pair normalVersor = n.getPosition().subtract(p.getPosition()).scale(1.0 / diff);
-                                    p.addToForce(getNormalForce(superposition, normalVersor));
+                                    p.addToForce(getNormalForce(sumRad - diff, normalVersor));
 
                                     Pair relativeVelocity = p.getVelocity().subtract(n.getVelocity());
-                                    p.addToForce(getTangencialForce(superposition, relativeVelocity, normalVersor));
+                                    p.addToForce(getTangencialForce(sumRad - diff, relativeVelocity, normalVersor));
                                 }
                             });
 
@@ -104,10 +106,10 @@ public class Grid {
                             neighbours.forEach(
                                     n -> {
 
-                                        double diff = pairDifference(p.getPosition(), n.getPosition());
+                                        double diff = p.getPosition().module(n.getPosition());
                                         double superposition = p.getRadius() + n.getRadius() - diff;
 
-                                        if (superposition > 0 && !n.equals(p)) {
+                                        if (superposition > ZERO && !n.equals(p)) {
 
                                             Pair normalVersor = n.getPosition().subtract(p.getPosition()).scale(1.0 / diff);
 
@@ -147,7 +149,7 @@ public class Grid {
         particles.forEach(p -> {
             if (outsideHole(p)) { //si pasa por el agujero, no choca con la pared
                 double superposition = p.getRadius() - Math.abs(p.getPosition().getY() - bottomLeftLimit.getY());
-                if (superposition > 0)
+                if (superposition > ZERO)
                     p.addToForce(
                             getWallForce(superposition, p.getVelocity(), FloorNormalVersor)
                     );
@@ -158,7 +160,7 @@ public class Grid {
     private void updateForceTop(List<Particle> particles) {
         particles.forEach(p -> {
             double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getY() - p.getPosition().getY());
-            if (superposition > 0)
+            if (superposition > ZERO)
                 p.addToForce(
                         getWallForce(superposition, p.getVelocity(), TopNormalVector)
                 );
@@ -168,7 +170,7 @@ public class Grid {
     private void updateForceLeftWall(List<Particle> particles) {
         particles.forEach(p -> {
             double superposition = p.getRadius() - Math.abs(p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
-            if (superposition > 0)
+            if (superposition > ZERO)
                 p.addToForce(
                         getWallForce(superposition, p.getVelocity(), LeftNormalVector)
                 );
@@ -178,7 +180,7 @@ public class Grid {
     private void updateForceRightWall(List<Particle> particles) {
         particles.forEach(p -> {
             double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getX() - p.getPosition().getX());
-            if (superposition > 0)
+            if (superposition > ZERO)
                 p.addToForce(
                         getWallForce(superposition, p.getVelocity(), RightNormalVector)
                 );
@@ -204,24 +206,37 @@ public class Grid {
         return particles;
     }
 
-    public List<Particle> update() {
+    private List<Particle> getAllNeighbours(int row, int col) {
+        List<Particle> particles = new ArrayList<>();
 
-        List<Particle> particleList = new ArrayList<>();
-        Particle aux;
+        int[][] diff = {
+                {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {1, 1}, {-1, 1}, {0, -1}, {1, -1}, {-1, -1}
+        };
+
+        for (int[] a : diff) {
+            try {
+                particles.addAll(
+                        cells[a[0]][a[1]].getParticles()
+                );
+            } catch (IndexOutOfBoundsException ignored) {
+            }
+        }
+
+        return particles;
+    }
+
+    public void update() {
 
         for (int i = 0; i < rowsTotal; i++) {
             for (int j = 0; j < cols; j++) {
 
                 for (int k = 0; k < cells[i][j].getParticles().size(); k++) {
-                    aux = updateParticleCell(cells[i][j].getParticles().get(k), i, j);
-                    if (aux != null)
-                        particleList.add(aux);
+                    updateParticleCell(cells[i][j].getParticles().get(k), i, j);
 
                 }
             }
 
         }
-        return particleList;
     }
 
 
@@ -246,6 +261,25 @@ public class Grid {
             if (newRow < 0) {
                 particle.reInject();
                 cells[row][col].remove(particle);
+
+                boolean overlap;
+                int c, r;
+                do {
+                    overlap = false;
+                    particle.getPosition().setX(particle.getRadius() + Math.random() * (DIM_X - 2.0 * particle.getRadius()));
+                    particle.getPosition().setY(0.4 + 0.7 / 10 + Math.random() * ((0.7 - 0.4) - particle.getRadius()));
+                    c = getIndexX(particle.getPosition().getX());
+                    r = getIndexY(particle.getPosition().getY());
+
+
+                    for (Particle existingParticle : getAllNeighbours(r, c)) {
+                        if (ParticleUtils.overlap(particle, existingParticle))
+                            overlap = true;
+                    }
+                } while (overlap);
+
+                cells[r][c].add(particle);
+
                 return particle;
             } else {
                 cells[newRow][newCol].add(particle);
@@ -258,10 +292,6 @@ public class Grid {
     }
 
     private Particle updateParticleCell(Particle particle, int row, int col) {
-//        double inferiorLimitY = ((double)(row)) * CELL_DIMENSION_Y + movement;
-//        double superiorLimitY = ((double)(row + 1)) * CELL_DIMENSION_Y + movement;
-//        double inferiorLimitX = ((double)col) * CELL_DIMENSION_X;
-//        double superiorLimitX = ((double)(col + 1)) * CELL_DIMENSION_X;
 
         Pair inferiorLimit = new Pair(((double) col) * CELL_DIMENSION_X, ((double) row) * CELL_DIMENSION_Y + movement);
         Pair superiorLimit = new Pair(((double) (col + 1)) * CELL_DIMENSION_X, ((double) (row + 1)) * CELL_DIMENSION_Y + movement);
@@ -273,35 +303,6 @@ public class Grid {
                 inferiorDiff.getY() < 0 ? row - 1 : superiorDiff.getY() >= 0 ? row + 1 : row,
                 inferiorDiff.getX() < 0 ? col - 1 : superiorDiff.getX() >= 0 ? col + 1 : col
         );
-
-//        double X = particle.getPosition().getX();
-//        double Y = particle.getPosition().getY();
-//
-//
-//        if (X >= superiorLimitX) {
-//            if (Y >= superiorLimitY) { // se va para arriba a la derecha
-//                return moveFromCell(particle, row, col, row + 1, col + 1);
-//            } else if (Y < inferiorLimitY) { // se va para abajo a la derecha
-//                return moveFromCell(particle, row, col, row - 1, col + 1);
-//            } else { // se va para la derecha
-//                return moveFromCell(particle, row, col, row, col + 1);
-//            }
-//        } else if (X < inferiorLimitX) {
-//            if (Y >= superiorLimitY) { // se va para arriba a la izq
-//                return moveFromCell(particle, row, col, row + 1, col - 1);
-//            } else if (Y < inferiorLimitY) { // se va para abajo a la izq
-//                return moveFromCell(particle, row, col, row - 1, col - 1);
-//            } else { // se va para la izquierda
-//                return moveFromCell(particle, row, col, row, col - 1);
-//            }
-//        } else {
-//            if (Y >= superiorLimitY) { // se va para arriba
-//                return moveFromCell(particle, row, col, row + 1, col);
-//            } else if (Y < inferiorLimitY) { // se va para abajo
-//                return moveFromCell(particle, row, col, row - 1, col);
-//            }
-//            return null;
-//        }
 
     }
 }

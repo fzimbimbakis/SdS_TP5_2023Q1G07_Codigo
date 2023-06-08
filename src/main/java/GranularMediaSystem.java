@@ -2,7 +2,6 @@ import models.Grid;
 import models.particle.Limit;
 import models.particle.Particle;
 import utils.Ovito;
-import utils.ParticleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -59,11 +58,11 @@ public class GranularMediaSystem implements Runnable{
             particles.forEach(Particle::prediction);
             particles.forEach(Particle::resetForce);
 
-            reInjectParticlesList = grid.update();
-            for (int j = 0; j < reInjectParticlesList.size(); j++)
-                times.add(i * dt);
-            ParticleUtils.reInjectParticles(particles, reInjectParticlesList, W, L);
-            grid.addAll(reInjectParticlesList);
+            grid.update();
+//            for (int j = 0; j < reInjectParticlesList.size(); j++)
+//                times.add(i * dt);
+//            ParticleUtils.reInjectParticles(particles, reInjectParticlesList, W, L);
+//            grid.addAll(reInjectParticlesList);
 
             grid.updateForces();
 
