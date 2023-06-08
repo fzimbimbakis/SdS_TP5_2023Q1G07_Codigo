@@ -37,8 +37,6 @@ public class BasicMain {
         String path = Ovito.createFile("output", "xyz");
         Ovito.writeParticlesToFileXyz(path, particleList, limits);
 
-        List<Particle> reInjectParticlesList;
-
         int iterations = (int)(config.getMaxTime() / config.getDt());
 
         for (int i = 0; i < iterations; i++) {
@@ -52,10 +50,10 @@ public class BasicMain {
             particleList.forEach(Particle::resetForce);
             grid.updateForces();
 
-//            if (i % 100 == 0) {
+            if (i % 100 == 0) {
                 System.out.println("Iteración: " + i);
                 Ovito.writeParticlesToFileXyz(path, particleList, limits);
-//            }
+            }
         }
     }
 }

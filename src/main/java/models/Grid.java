@@ -210,13 +210,13 @@ public class Grid {
         List<Particle> particles = new ArrayList<>();
 
         int[][] diff = {
-                {0, 0}, {1, 0}, {-1, 0}, {0, 1}, {1, 1}, {-1, 1}, {0, -1}, {1, -1}, {-1, -1}
+                {0, 0}, {0, 1}, {0, -1}, {1, 0}, {1, 1}, {1, -1}, {-1, 0}, {-1, 1}, {-1, -1}
         };
 
         for (int[] a : diff) {
             try {
                 particles.addAll(
-                        cells[a[0]][a[1]].getParticles()
+                        cells[row + a[0]][col + a[1]].getParticles()
                 );
             } catch (IndexOutOfBoundsException ignored) {
             }
