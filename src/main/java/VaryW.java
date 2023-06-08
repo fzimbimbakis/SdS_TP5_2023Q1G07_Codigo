@@ -19,7 +19,10 @@ public class VaryW {
 
         List<Particle> particleList = ParticleUtils.generateParticles(config.getW(), config.getL(), config.getN(), config.getMass(), config.getDt());
 
-        double[] frequencies = {5, 10, 20, 30, 40, 50};
+        System.out.println(particleList.stream().mapToDouble(Particle::getRadius).average());
+
+
+        double[] frequencies = {5, 10, 15, 20, 30, 40, 50};
 
         List<GranularMediaSystem> systems = new ArrayList<>();
 

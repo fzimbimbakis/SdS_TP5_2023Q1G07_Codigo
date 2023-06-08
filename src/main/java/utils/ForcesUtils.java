@@ -4,7 +4,7 @@ import models.Pair;
 
 public class ForcesUtils {
 
-    public static final double K_NORMAL = 0.25;
+    public static final double K_NORMAL = 0.4;
     public static final double GRAVITY = -0.05;
 
     public static final double K_TAN = 2 * K_NORMAL;

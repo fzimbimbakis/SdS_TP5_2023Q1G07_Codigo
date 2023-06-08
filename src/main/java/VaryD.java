@@ -19,7 +19,9 @@ public class VaryD {
 
         List<Particle> particleList = ParticleUtils.generateParticles(config.getW(), config.getL(), config.getN(), config.getMass(), config.getDt());
 
-        double[] holeSizes = {3.0, 4.0, 5.0, 6.0};
+        System.out.println(particleList.stream().mapToDouble(Particle::getRadius).average());
+
+        double[] holeSizes = {0.03, 0.04, 0.05, 0.06};
 
         List<GranularMediaSystem> systems = new ArrayList<>();
 
