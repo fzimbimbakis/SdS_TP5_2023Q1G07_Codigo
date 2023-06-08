@@ -225,18 +225,21 @@ public class Grid {
         return particles;
     }
 
-    public void update() {
-
+    public int update() {
+        int goneParticles = 0;
         for (int i = 0; i < rowsTotal; i++) {
             for (int j = 0; j < cols; j++) {
 
                 for (int k = 0; k < cells[i][j].getParticles().size(); k++) {
-                    updateParticleCell(cells[i][j].getParticles().get(k), i, j);
+                    if(!updateParticleCell(cells[i][j].getParticles().get(k), i, j))
+                        goneParticles += 1;
 
                 }
+
             }
 
         }
+        return goneParticles;
     }
 
 
@@ -256,7 +259,7 @@ public class Grid {
         return (int) (value / CELL_DIMENSION_Y);
     }
 
-    private Particle moveFromCell(Particle particle, int row, int col, int newRow, int newCol) {
+    private boolean moveFromCell(Particle particle, int row, int col, int newRow, int newCol) {
         try {
             if (newRow < 0) {
                 particle.reInject();
@@ -280,18 +283,18 @@ public class Grid {
 
                 cells[r][c].add(particle);
 
-                return particle;
+                return false;
             } else {
                 cells[newRow][newCol].add(particle);
                 cells[row][col].remove(particle);
-                return null;
+                return true;
             }
         } catch (IndexOutOfBoundsException e) {
             throw new IllegalStateException(particle.getId() + " " + newRow + " " + newCol);
         }
     }
 
-    private Particle updateParticleCell(Particle particle, int row, int col) {
+    private boolean updateParticleCell(Particle particle, int row, int col) {
 
         Pair inferiorLimit = new Pair(((double) col) * CELL_DIMENSION_X, ((double) row) * CELL_DIMENSION_Y + movement);
         Pair superiorLimit = new Pair(((double) (col + 1)) * CELL_DIMENSION_X, ((double) (row + 1)) * CELL_DIMENSION_Y + movement);
