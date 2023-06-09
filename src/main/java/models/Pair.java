@@ -13,10 +13,6 @@ public class Pair {
         this.y = y;
     }
 
-    public static Pair copy(Pair pair) {
-        return new Pair(pair.getX(), pair.getY());
-    }
-
     public Double getX() {
         return x;
     }

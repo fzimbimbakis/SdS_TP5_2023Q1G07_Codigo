@@ -32,6 +32,10 @@ public class Main {
 
         varyW.run();
 
+        VaryD varyD = new VaryD(particleList, config);
+
+        varyD.run();
+
 
     }
 

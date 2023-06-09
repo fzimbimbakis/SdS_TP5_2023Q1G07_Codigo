@@ -1,7 +1,6 @@
 import models.particle.Particle;
 import utils.JsonConfigReader;
 import utils.Ovito;
-import utils.ParticleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
