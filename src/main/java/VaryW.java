@@ -11,16 +11,14 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class VaryW {
-    private static final String JSON_CONFIG_PATH = "./src/main/java/config.json";
+    private final List<Particle> particleList;
+    private final JsonConfigReader config;
+    public VaryW(List<Particle> particleList, JsonConfigReader config) {
+        this.particleList = particleList;
+        this.config = config;
+    }
 
-    public static void main(String[] args) throws InterruptedException {
-
-        JsonConfigReader config = new JsonConfigReader(JSON_CONFIG_PATH);
-
-        List<Particle> particleList = ParticleUtils.generateParticles(config.getW(), config.getL(), config.getN(), config.getMass(), config.getDt());
-
-        System.out.println(particleList.stream().mapToDouble(Particle::getRadius).average());
-
+    public void run() throws InterruptedException {
 
         double[] frequencies = {5, 10, 15, 20, 30, 40, 50};
 
@@ -36,8 +34,8 @@ public class VaryW {
                     config.getHoleSize(),
                     config.getMaxTime(),
                     freq,
-                    "output_" + freq + "_",
-                    particleList
+                    "output_F_" + freq + "_",
+                    this.particleList
                     );
             systems.add(system);
             executor.execute(system);
@@ -49,7 +47,7 @@ public class VaryW {
 
         Ovito.writeListToFIle(
                 systems.stream().map(GranularMediaSystem::getCaudal).collect(Collectors.toList()),
-                Ovito.createFile("caudals", "txt"),
+                Ovito.createFile("caudals_F", "txt"),
                 true
         );
 
@@ -57,7 +55,7 @@ public class VaryW {
                 systems) {
             Ovito.writeListToFIle(
                     system.getTimes(),
-                    Ovito.createFile("times", "txt"),
+                    Ovito.createFile("times_F", "txt"),
                     true
             );
         }
@@ -66,7 +64,7 @@ public class VaryW {
                 systems) {
             Ovito.writeListToFIle(
                     system.getEnergy(),
-                    Ovito.createFile("energy", "txt"),
+                    Ovito.createFile("energy_F", "txt"),
                     true
             );
         }

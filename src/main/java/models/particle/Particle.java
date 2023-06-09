@@ -23,6 +23,7 @@ public class Particle {
     private Pair prevAcceleration;
     private Pair actualAcceleration;
     private Pair actualVelocity;
+    private boolean gone = false;
 
     public void resetForce() {
         force.setX(ZERO);
@@ -143,5 +144,13 @@ public class Particle {
 
     public int getId() {
         return id;
+    }
+
+    public boolean isGone() {
+        return gone;
+    }
+
+    public void setGone(boolean gone) {
+        this.gone = gone;
     }
 }

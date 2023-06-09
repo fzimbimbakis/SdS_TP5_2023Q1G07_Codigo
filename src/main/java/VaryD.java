@@ -11,15 +11,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class VaryD {
-    private static final String JSON_CONFIG_PATH = "./src/main/java/config.json";
 
-    public static void main(String[] args) throws InterruptedException {
+    private final List<Particle> particleList;
+    private final JsonConfigReader config;
+    public VaryD(List<Particle> particleList, JsonConfigReader config) {
+        this.particleList = particleList;
+        this.config = config;
+    }
 
-        JsonConfigReader config = new JsonConfigReader(JSON_CONFIG_PATH);
-
-        List<Particle> particleList = ParticleUtils.generateParticles(config.getW(), config.getL(), config.getN(), config.getMass(), config.getDt());
-
-        System.out.println(particleList.stream().mapToDouble(Particle::getRadius).average());
+    public void run() throws InterruptedException {
 
         double[] holeSizes = {0.03, 0.04, 0.05, 0.06};
 
@@ -35,7 +35,7 @@ public class VaryD {
                     holeSize,
                     config.getMaxTime(),
                     config.getFrecuency(),
-                    "output_" + holeSize + "_",
+                    "output_D_" + holeSize + "_",
                     particleList
             );
             systems.add(system);
@@ -48,7 +48,7 @@ public class VaryD {
 
         Ovito.writeListToFIle(
                 systems.stream().map(GranularMediaSystem::getCaudal).collect(Collectors.toList()),
-                Ovito.createFile("caudals", "txt"),
+                Ovito.createFile("caudals_D", "txt"),
                 true
         );
 
@@ -56,7 +56,16 @@ public class VaryD {
                 systems) {
             Ovito.writeListToFIle(
                     system.getTimes(),
-                    Ovito.createFile("times", "txt"),
+                    Ovito.createFile("times_D", "txt"),
+                    true
+            );
+        }
+
+        for (GranularMediaSystem system :
+                systems) {
+            Ovito.writeListToFIle(
+                    system.getEnergy(),
+                    Ovito.createFile("energy_D", "txt"),
                     true
             );
         }

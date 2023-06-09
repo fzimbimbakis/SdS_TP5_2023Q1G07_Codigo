@@ -123,7 +123,7 @@ public class Grid {
                         }
                 );
 
-                if (row == (rowsTotal - rowsInside)) //pared inferior con el agujero
+                if (row <= (rowsTotal - rowsInside)) //pared inferior con el agujero
                     updateForceFloor(current);
 
                 if (row == rowsTotal - 1)
@@ -141,12 +141,12 @@ public class Grid {
 
     private void updateForceFloor(List<Particle> particles) {
         particles.forEach(p -> {
-            if (outsideHole(p))
+            if (outsideHole(p) && !p.isGone())
                 floorForce(p);
         });
     }
     private void floorForce(Particle particle){
-        double superposition = particle.getRadius() - Math.abs(particle.getPosition().getY() - bottomLeftLimit.getY());
+        double superposition = particle.getRadius() - (particle.getPosition().getY() - bottomLeftLimit.getY());
         if (superposition > ZERO)
             particle.addToForce(
                     getWallForce(superposition, particle.getVelocity(), FloorNormalVersor)
@@ -158,7 +158,7 @@ public class Grid {
     }
 
     private void topForce(Particle p){
-        double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getY() - p.getPosition().getY());
+        double superposition = p.getRadius() - (topRightLimit.getPosition().getY() - p.getPosition().getY());
         if (superposition > ZERO)
             p.addToForce(
                     getWallForce(superposition, p.getVelocity(), TopNormalVector)
@@ -169,7 +169,7 @@ public class Grid {
         particles.forEach(this::leftForce);
     }
     private void leftForce(Particle p){
-        double superposition = p.getRadius() - Math.abs(p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
+        double superposition = p.getRadius() - (p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
         if (superposition > ZERO)
             p.addToForce(
                     getWallForce(superposition, p.getVelocity(), LeftNormalVector)
@@ -180,7 +180,7 @@ public class Grid {
         particles.forEach(this::rightForce);
     }
     private void rightForce(Particle p){
-        double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getX() - p.getPosition().getX());
+        double superposition = p.getRadius() - (topRightLimit.getPosition().getX() - p.getPosition().getX());
         if (superposition > ZERO)
             p.addToForce(
                     getWallForce(superposition, p.getVelocity(), RightNormalVector)
@@ -282,6 +282,7 @@ public class Grid {
                 } while (overlap);
 
                 cells[r][c].add(particle);
+                particle.setGone(false);
 
                 return false;
             } else {
@@ -290,7 +291,8 @@ public class Grid {
                 return true;
             }
         } catch (IndexOutOfBoundsException e) {
-            throw new IllegalStateException(particle.getId() + " " + newRow + " " + newCol);
+//            throw new IllegalStateException(particle.getId() + " " + newRow + " " + newCol);
+            return true;
         }
     }
 
@@ -298,6 +300,9 @@ public class Grid {
 
         Pair inferiorLimit = new Pair(((double) col) * CELL_DIMENSION_X, ((double) row) * CELL_DIMENSION_Y + movement);
         Pair superiorLimit = new Pair(((double) (col + 1)) * CELL_DIMENSION_X, ((double) (row + 1)) * CELL_DIMENSION_Y + movement);
+
+        if(!particle.isGone() && !outsideHole(particle) && particle.getPosition().getY() < bottomLeftLimit.getY())
+            particle.setGone(true);
 
         Pair inferiorDiff = particle.getPosition().subtract(inferiorLimit);
         Pair superiorDiff = particle.getPosition().subtract(superiorLimit);
