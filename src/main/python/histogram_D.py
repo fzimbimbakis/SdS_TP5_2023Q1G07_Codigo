@@ -13,10 +13,10 @@ def get_times(path):
     return data
 
 def times_graph(directory):
-    x1 = get_times('../resources/times13.txt')
-    x2 = get_times('../resources/times14.txt')
-    x3 = get_times('../resources/times15.txt')
-    x4 = get_times('../resources/times16.txt')
+    x1 = get_times('../resources/times5.txt')
+    x2 = get_times('../resources/times8.txt')
+    x3 = get_times('../resources/times9.txt')
+    x4 = get_times('../resources/times10.txt')
 
     for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
         # Calcular los conteos de eventos en cada intervalo

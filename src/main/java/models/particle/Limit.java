@@ -23,6 +23,6 @@ public class Limit {
     }
 
     public String toString() {
-        return position.getX() + " " + position.getY() + " " + 0.0 + " " + 0.0 + " " + 0.0001 + " " + -1 + " " + 0.0 + " " + 0.0;
+        return position.getX() + " " + position.getY() + " " + 0.0 + " " + 0.0 + " " + 0.0001 + " " + 0 + " " + 0 + " " + 0;
     }
 }

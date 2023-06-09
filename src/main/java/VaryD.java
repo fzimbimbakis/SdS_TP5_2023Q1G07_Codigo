@@ -21,7 +21,7 @@ public class VaryD {
 
         System.out.println(particleList.stream().mapToDouble(Particle::getRadius).average());
 
-        double[] holeSizes = {0.03, 0.04, 0.05, 0.06};
+        double[] holeSizes = {0.04, 0.05, 0.06};
 
         List<GranularMediaSystem> systems = new ArrayList<>();
 
