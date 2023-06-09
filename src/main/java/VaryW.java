@@ -61,6 +61,15 @@ public class VaryW {
                     true
             );
         }
+
+        for (GranularMediaSystem system :
+                systems) {
+            Ovito.writeListToFIle(
+                    system.getEnergy(),
+                    Ovito.createFile("energy", "txt"),
+                    true
+            );
+        }
     }
 
 }

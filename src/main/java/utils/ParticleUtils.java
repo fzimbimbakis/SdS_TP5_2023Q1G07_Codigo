@@ -21,7 +21,7 @@ public class ParticleUtils {
             radius = MIN_RADIUS + Math.random() * (MAX_RADIUS - MIN_RADIUS);
             x = radius + Math.random() * (W - 2 * radius);
             y = radius + L / 10 + Math.random() * (L - 2 * radius);
-        Particle newParticle = new Particle(i, new Pair(x, y), radius, mass, dt);
+            Particle newParticle = new Particle(i, new Pair(x, y), radius, mass, dt);
 
         overlap = false;
 
@@ -42,6 +42,10 @@ public class ParticleUtils {
             particles.add(newParticle);
         }
     }
+//        Particle a = new Particle(1, new Pair(0.105, 0.4), 0.01, mass, dt);
+//        Particle b = new Particle(2, new Pair(0.1, 0.6), 0.01, mass, dt);
+//        particles.add(a);
+//        particles.add(b);
 
     return particles;
 }

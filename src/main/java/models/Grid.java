@@ -71,12 +71,6 @@ public class Grid {
         return particle.getPosition().getX() < leftLimitHole || particle.getPosition().getX() > rightLimitHole;
     }
 
-    private double pairDifference(Pair a, Pair b) {
-        return Math.sqrt(
-                Math.pow(a.getX() - b.getX(), 2) + Math.pow(a.getY() - b.getY(), 2)
-        );
-    }
-
     public void updateForces() {
         for (int row = 0; row < rowsTotal; row++) {
             for (int col = 0; col < cols; col++) {
@@ -147,44 +141,50 @@ public class Grid {
 
     private void updateForceFloor(List<Particle> particles) {
         particles.forEach(p -> {
-            if (outsideHole(p)) { //si pasa por el agujero, no choca con la pared
-                double superposition = p.getRadius() - Math.abs(p.getPosition().getY() - bottomLeftLimit.getY());
-                if (superposition > ZERO)
-                    p.addToForce(
-                            getWallForce(superposition, p.getVelocity(), FloorNormalVersor)
-                    );
-            }
+            if (outsideHole(p))
+                floorForce(p);
         });
+    }
+    private void floorForce(Particle particle){
+        double superposition = particle.getRadius() - Math.abs(particle.getPosition().getY() - bottomLeftLimit.getY());
+        if (superposition > ZERO)
+            particle.addToForce(
+                    getWallForce(superposition, particle.getVelocity(), FloorNormalVersor)
+            );
     }
 
     private void updateForceTop(List<Particle> particles) {
-        particles.forEach(p -> {
-            double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getY() - p.getPosition().getY());
-            if (superposition > ZERO)
-                p.addToForce(
-                        getWallForce(superposition, p.getVelocity(), TopNormalVector)
-                );
-        });
+        particles.forEach(this::topForce);
+    }
+
+    private void topForce(Particle p){
+        double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getY() - p.getPosition().getY());
+        if (superposition > ZERO)
+            p.addToForce(
+                    getWallForce(superposition, p.getVelocity(), TopNormalVector)
+            );
     }
 
     private void updateForceLeftWall(List<Particle> particles) {
-        particles.forEach(p -> {
-            double superposition = p.getRadius() - Math.abs(p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
-            if (superposition > ZERO)
-                p.addToForce(
-                        getWallForce(superposition, p.getVelocity(), LeftNormalVector)
-                );
-        });
+        particles.forEach(this::leftForce);
+    }
+    private void leftForce(Particle p){
+        double superposition = p.getRadius() - Math.abs(p.getPosition().getX() - bottomLeftLimit.getPosition().getX());
+        if (superposition > ZERO)
+            p.addToForce(
+                    getWallForce(superposition, p.getVelocity(), LeftNormalVector)
+            );
     }
 
     private void updateForceRightWall(List<Particle> particles) {
-        particles.forEach(p -> {
-            double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getX() - p.getPosition().getX());
-            if (superposition > ZERO)
-                p.addToForce(
-                        getWallForce(superposition, p.getVelocity(), RightNormalVector)
-                );
-        });
+        particles.forEach(this::rightForce);
+    }
+    private void rightForce(Particle p){
+        double superposition = p.getRadius() - Math.abs(topRightLimit.getPosition().getX() - p.getPosition().getX());
+        if (superposition > ZERO)
+            p.addToForce(
+                    getWallForce(superposition, p.getVelocity(), RightNormalVector)
+            );
     }
 
     private List<Particle> getNeighbours(int row, int col) {

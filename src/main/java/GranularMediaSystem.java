@@ -2,38 +2,41 @@ import models.Grid;
 import models.particle.Limit;
 import models.particle.Particle;
 import utils.Ovito;
+import utils.ParticleUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class GranularMediaSystem implements Runnable {
+public class GranularMediaSystem implements Runnable{
 
-    private final double dt;
-    private final double frequency;
+    private final double L, W, dt, frequency;
     private final List<Particle> particles;
     private final Grid grid;
     private final List<Limit> limits;
     private final int iterations;
     private final String path;
     private final List<Double> times = new ArrayList<>();
+    private final List<Double> energy = new ArrayList<>();
 
     public GranularMediaSystem(double l, double w, double dt, double d, double maxTime, double frequency, String outputFileName, List<Particle> particles) {
+        this.L = l;
+        this.W = w;
         this.dt = dt;
-        this.iterations = (int) (maxTime / dt);
+        this.iterations = (int)(maxTime/dt);
         this.frequency = frequency;
         this.particles = particles.stream().map(Particle::copy).collect(Collectors.toList());
 
         this.limits = new ArrayList<>();
-        Limit l1 = new Limit(w, l + l / 10);
+        Limit l1 = new Limit(W, L + L/10);
         this.limits.add(l1);
-        Limit l2 = new Limit(0.0, l / 10);
+        Limit l2 = new Limit(0.0, L/10);
         this.limits.add(l2);
-        Limit l3 = new Limit(w, 0.0);
+        Limit l3 = new Limit(W, 0.0);
         this.limits.add(l3);
-        Limit leftHole = new Limit(w / 2 - d / 2, l / 10);
+        Limit leftHole = new Limit(W / 2 - d / 2, L/10);
         this.limits.add(leftHole);
-        Limit rightHole = new Limit(w / 2 + d / 2, l / 10);
+        Limit rightHole = new Limit(W / 2 + d / 2, L/10);
         this.limits.add(rightHole);
 
         this.grid = new Grid(l1, l2, d);
@@ -47,6 +50,8 @@ public class GranularMediaSystem implements Runnable {
 
     @Override
     public void run() {
+
+        List<Particle> reInjectParticlesList;
 
         for (int i = 0; i < iterations; i++) {
 
@@ -67,6 +72,7 @@ public class GranularMediaSystem implements Runnable {
 
             if (i % 100 == 0) {
                 System.out.println(hashCode() + ": iteración-" + i);
+                energy.add(particles.stream().mapToDouble(Particle::getEnergy).sum());
                 Ovito.writeParticlesToFileXyz(path, particles, limits);
             }
         }
@@ -79,5 +85,9 @@ public class GranularMediaSystem implements Runnable {
 
     public double getCaudal(){
         return times.size() / (iterations * dt);
+    }
+
+    public List<Double> getEnergy() {
+        return energy;
     }
 }

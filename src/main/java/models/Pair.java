@@ -4,6 +4,7 @@ import java.util.Objects;
 
 public class Pair {
 
+    public static final Pair ZERO = new Pair(0.0, 0.0);
     private Double x;
     private Double y;
 

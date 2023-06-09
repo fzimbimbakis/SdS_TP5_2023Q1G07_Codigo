@@ -35,15 +35,15 @@ def times_graph(directory):
 
 
 
-    Q_list = get_Qs('../resources/caudals2.txt')
+    # Q_list = get_Qs('../resources/caudals2.txt')
     error_list = []
 
     plt.xlabel('Frecuencia (Hz)')
     plt.ylabel('Caudal')
 
-    for x, label, Q in zip([x1, x2, x3, x4, x5, x6, x7], ['5', '10', '15', '20', '30', '40', '50'], Q_list):
+    for x, label in zip([x1, x2, x3, x4, x5, x6, x7], ['5', '10', '15', '20', '30', '40', '50']):
 
-        #Q = Q_list[x]
+        Q = (len(x))/(x[-1]-x[0])
 
         x_mean = np.mean(x)
 
@@ -64,7 +64,7 @@ def times_graph(directory):
     plt.savefig(directory + 'QvsFrecuency.png')
     plt.clf()
 
-    print(Q_list)
+    # print(Q_list)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,7 @@ import utils.ForcesUtils;
 import java.util.Objects;
 
 public class Particle {
+    private static final double ZERO = 0.0;
     private final static double B = (2.0 / 3.0);
     private final static double C = -(1.0 / 6.0);
     private final Pair force;
@@ -24,8 +25,12 @@ public class Particle {
     private Pair actualVelocity;
 
     public void resetForce() {
-        force.setX(0.0);
-        force.setY(0.0);
+        force.setX(ZERO);
+        force.setY(ZERO);
+    }
+
+    public double getEnergy(){
+        return Math.pow(this.velocity.module(Pair.ZERO), 2) * mass / 2.0;
     }
 
     public void addToForce(double x, double y) {
@@ -38,12 +43,12 @@ public class Particle {
         this.position = position;
         this.radius = radius;
         this.mass = mass;
-        this.force = new Pair(0.0, mass * ForcesUtils.GRAVITY);
-        this.velocity = new Pair(0.0, 0.0);
+        this.force = new Pair(ZERO, ZERO);
+        this.velocity = new Pair(ZERO, ZERO);
         this.dt = dt;
         this.sqrDt = Math.pow(dt, 2);
-
-        prevAcceleration = new Pair(0.0, ForcesUtils.GRAVITY);
+        actualAcceleration = new Pair(ZERO, ZERO);
+        prevAcceleration = new Pair(ZERO, ForcesUtils.GRAVITY);
     }
 
     public Particle copy() {
@@ -85,20 +90,17 @@ public class Particle {
 
     // BEEMAN
     public void prediction() {
-
-//        double newX = this.getPosition().getX() + this.getVelocity().getX() * dt + (2.0 / 3.0) * this.getAcceleration().getX() * sqrDt - (1.0 / 6.0) * prevAcceleration.getX() * sqrDt;
-//        double newY = this.getPosition().getY() + this.getVelocity().getY() * dt + (2.0 / 3.0) * this.getAcceleration().getY() * sqrDt - (1.0 / 6.0) * prevAcceleration.getY() * sqrDt;
-
-        this.position = this.position.sum(
-                this.velocity.scale(dt).sum(
-                        this.getAcceleration().scale(sqrDt * B).sum(
-                                prevAcceleration.scale(C * sqrDt)
-                        )
+//        this.actualAcceleration = this.getAcceleration();
+        actualAcceleration = this.getAcceleration();
+        this.position = position.sum(
+                velocity.scale(dt).sum(
+                        actualAcceleration.scale(B).sum(
+                                prevAcceleration.scale(C)
+                        ).scale(sqrDt)
                 )
         );
 
-        this.actualVelocity = this.getVelocity();
-        this.actualAcceleration = this.getAcceleration();
+        this.actualVelocity = velocity;
 
         this.velocity = this.actualVelocity.sum(
                 this.actualAcceleration.scale(1.5 * dt).sum(
@@ -106,33 +108,21 @@ public class Particle {
                 )
         );
 
-//        double predictedVx = this.getVelocity().getX() + 1.5 * this.getAcceleration().getX() * dt - 0.5 * prevAcceleration.getX() * dt;
-//        double predictedVy = this.getVelocity().getY() + 1.5 * this.getAcceleration().getY() * dt - 0.5 * prevAcceleration.getY() * dt;
-//
-//
-////        this.position = new Pair(newX, newY);
-//        this.velocity = new Pair(predictedVx, predictedVy);
-
     }
 
     public void correction(){
         if (reInjected){
-            this.velocity = new Pair(0.0, 0.0);
+            this.velocity = new Pair(ZERO, ZERO);
             reInjected = false;
-            prevAcceleration = new Pair(0.0, ForcesUtils.GRAVITY);
+            prevAcceleration = new Pair(ZERO, ForcesUtils.GRAVITY);
         }else {
-//            double newVx = actualVelocity.getX() + (1.0/3.0)*this.getAcceleration().getX()*dt + (5.0/6.0)* actualAcceleration.getX()*dt - (1.0/6.0)* prevAcceleration.getX()*dt;
-//            double newVy = actualVelocity.getY() + (1.0/3.0)*this.getAcceleration().getY()*dt + (5.0/6.0)* actualAcceleration.getY()*dt - (1.0/6.0)* prevAcceleration.getY()*dt;
-//            this.velocity = new Pair(newVx, newVy);
-
             this.velocity = actualVelocity.sum(
                     this.getAcceleration().scale((1.0 / 3.0) * dt).sum(
                             actualAcceleration.scale((5.0 / 6.0) * dt).sum(
-                                    prevAcceleration.scale(-(1.0 / 6.0) * dt) // TODO CHECK signo menos
+                                    prevAcceleration.scale(-(1.0 / 6.0) * dt)
                             )
                     )
             );
-
             prevAcceleration = actualAcceleration;
         }
 
