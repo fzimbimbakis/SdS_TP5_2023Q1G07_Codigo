@@ -1,6 +1,7 @@
 package models.particle;
 
 import models.Pair;
+import utils.Color;
 import utils.ForcesUtils;
 
 import java.util.Objects;
@@ -14,6 +15,7 @@ public class Particle {
     private final Double mass;
     private final int id;
     private boolean reInjected = false;
+    private Color color;
 
     // Beeman information
     private final Double dt;
@@ -39,7 +41,7 @@ public class Particle {
         force.setY(force.getY() + y);
     }
 
-    public Particle(int id, Pair position, Double radius, Double mass, Double dt) {
+    public Particle(int id, Pair position, Double radius, Double mass, Double dt, Color color) {
         this.id = id;
         this.position = position;
         this.radius = radius;
@@ -50,10 +52,11 @@ public class Particle {
         this.sqrDt = Math.pow(dt, 2);
         actualAcceleration = new Pair(ZERO, ZERO);
         prevAcceleration = new Pair(ZERO, ForcesUtils.GRAVITY);
+        this.color = color;
     }
 
     public Particle copy() {
-        return new Particle(id, position, radius, mass, dt);
+        return new Particle(id, position, radius, mass, dt, color);
     }
 
     public void addToForce(Pair pair) {
@@ -67,6 +70,7 @@ public class Particle {
 
     public void reInject() {
         reInjected = true;
+        setColor(Color.RED);
     }
 
     public Double getRadius() {
@@ -78,7 +82,15 @@ public class Particle {
     }
 
     public String toString() {
-        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + id + " " + force.getX() + " " + force.getY();
+        return position.getX() + " " + position.getY() + " " + velocity.getX() + " " + velocity.getY() + " " + radius + " " + color;
+    }
+
+    public void setColor(Color color){
+        this.color = color;
+    }
+
+    public Color getColor(){
+        return color;
     }
 
     public Pair getPosition() {

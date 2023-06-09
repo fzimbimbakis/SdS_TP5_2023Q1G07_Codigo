@@ -15,4 +15,9 @@ public enum Color{
         this.g = g;
         this.b = b;
     }
+
+    @Override
+    public String toString() {
+        return r + " " + g + " " + b;
+    }
 }

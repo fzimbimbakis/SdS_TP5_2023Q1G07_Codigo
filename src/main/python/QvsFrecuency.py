@@ -23,7 +23,6 @@ def get_Qs(path):
     return Qs
 
 
-##TODO: borrar los tiempos del transitorio INICIAL de cada txt
 def times_graph(directory):
     x1 = get_times('../resources/times1.txt')
     x2 = get_times('../resources/times2.txt')

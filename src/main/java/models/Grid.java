@@ -2,6 +2,7 @@ package models;
 
 import models.particle.Limit;
 import models.particle.Particle;
+import utils.Color;
 import utils.ForcesUtils;
 import utils.ParticleUtils;
 
@@ -288,6 +289,8 @@ public class Grid {
             } else {
                 cells[newRow][newCol].add(particle);
                 cells[row][col].remove(particle);
+                if (newRow == (rowsTotal - rowsInside - 1) && particle.getColor().equals(Color.RED))
+                    particle.setColor(Color.GREEN);
                 return true;
             }
         } catch (IndexOutOfBoundsException e) {

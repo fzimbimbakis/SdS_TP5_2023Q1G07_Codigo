@@ -20,7 +20,7 @@ public class VaryD {
 
     public void run() throws InterruptedException {
 
-        double[] holeSizes = {0.03, 0.04, 0.05, 0.06};
+        double[] holeSizes = {0.04, 0.05, 0.06};
 
         List<GranularMediaSystem> systems = new ArrayList<>();
 

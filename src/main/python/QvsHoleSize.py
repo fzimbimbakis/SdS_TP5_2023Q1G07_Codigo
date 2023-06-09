@@ -23,14 +23,13 @@ def get_Qs(path):
     return Qs
 
 
-##TODO: borrar los tiempos del transitorio INICIAL de cada txt
 def times_graph(directory):
-    x1 = get_times('../resources/times13.txt')
-    x2 = get_times('../resources/times14.txt')
-    x3 = get_times('../resources/times15.txt')
-    x4 = get_times('../resources/times16.txt')
+    x1 = get_times('../resources/times5.txt')
+    x2 = get_times('../resources/times8.txt')
+    x3 = get_times('../resources/times9.txt')
+    x4 = get_times('../resources/times10.txt')
 
-    Q_list = get_Qs('../resources/caudals3.txt')
+    Q_list = get_Qs('../resources/caudals2.txt')
     error_list = []
 
     plt.xlabel('Ancho de apertura de salida (cm)')
