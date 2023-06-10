@@ -24,15 +24,13 @@ def get_Qs(path):
 
 
 def times_graph(directory):
-    x1 = get_times('../resources/times1.txt')
-    x2 = get_times('../resources/times2.txt')
-    x3 = get_times('../resources/times3.txt')
-    x4 = get_times('../resources/times4.txt')
-    x5 = get_times('../resources/times5.txt')
-    x6 = get_times('../resources/times6.txt')
-    x7 = get_times('../resources/times7.txt')
-
-
+    x1 = get_times('../resources/times_F1.txt')
+    x2 = get_times('../resources/times_F2.txt')
+    x3 = get_times('../resources/times_F3.txt')
+    x4 = get_times('../resources/times_F4.txt')
+    x5 = get_times('../resources/times_F5.txt')
+    x6 = get_times('../resources/times_F6.txt')
+    x7 = get_times('../resources/times_F7.txt')
 
     # Q_list = get_Qs('../resources/caudals2.txt')
     error_list = []

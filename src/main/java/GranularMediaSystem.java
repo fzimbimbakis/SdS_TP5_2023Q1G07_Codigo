@@ -67,7 +67,8 @@ public class GranularMediaSystem implements Runnable{
             grid.updateForces();
 
             if (i % 100 == 0) {
-                System.out.println(hashCode() + ": iteración-" + i);
+                if (i % 100000 == 0)
+                    System.out.println(hashCode() + ": iteración-" + i);
                 energy.add(particles.stream().mapToDouble(Particle::getEnergy).sum());
                 Ovito.writeParticlesToFileXyz(path, particles, limits);
             }

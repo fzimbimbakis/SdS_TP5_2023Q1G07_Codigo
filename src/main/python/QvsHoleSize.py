@@ -24,27 +24,27 @@ def get_Qs(path):
 
 
 def times_graph(directory):
-    x1 = get_times('../resources/times5.txt')
-    x2 = get_times('../resources/times8.txt')
-    x3 = get_times('../resources/times9.txt')
-    x4 = get_times('../resources/times10.txt')
+    x1 = get_times('../resources/times_F5.txt')
+    x2 = get_times('../resources/times_D1.txt')
+    x3 = get_times('../resources/times_D2.txt')
+    x4 = get_times('../resources/times_D3.txt')
 
-    Q_list = get_Qs('../resources/caudals2.txt')
+    # Q_list = get_Qs('../resources/caudals2.txt')
     error_list = []
 
     plt.xlabel('Ancho de apertura de salida (cm)')
     plt.ylabel('Caudal')
 
-    for x, label, Q in zip([x1, x2, x3, x4], ['3', '4', '5', '6'], Q_list):
+    for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
 
-        #Q = len(x)/x[-1]
+        Q = (len(x)) / (x[-1] - x[0])
 
-        #Q_list.append(Q)
+        # Q_list.append(Q)
         x_mean = np.mean(x)
 
         f = []
         for i in range(len(x)):
-            f.append(Q*x[i]) ## dudoso
+            f.append(Q * x[i])  ## dudoso
 
         S = np.sqrt(np.sum((x-f)**2)/(len(x)-2))
 

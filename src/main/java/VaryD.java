@@ -13,9 +13,12 @@ public class VaryD {
 
     private final List<Particle> particleList;
     private final JsonConfigReader config;
-    public VaryD(List<Particle> particleList, JsonConfigReader config) {
+    private final double freq;
+
+    public VaryD(List<Particle> particleList, JsonConfigReader config, double freq) {
         this.particleList = particleList;
         this.config = config;
+        this.freq = freq;
     }
 
     public void run() throws InterruptedException {
@@ -33,7 +36,7 @@ public class VaryD {
                     config.getDt(),
                     holeSize,
                     config.getMaxTime(),
-                    config.getFrecuency(),
+                    freq,
                     "output_D_" + holeSize + "_",
                     particleList
             );

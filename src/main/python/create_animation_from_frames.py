@@ -1,14 +1,15 @@
-import os
 import glob
 import imageio
+import os
+
 # Ruta a la carpeta que contiene las imágenes
-animation_frames_folder = '../resources/animations/w=10; D=3/frames'
+name = 'F20'
+animation_frames_folder = f'../resources/animations/{name}/frames/'
 frames_files_name_format = 'frame*.png'
-animation_name = '../resources/animations/w=10; D=3/animation.mp4'
+animation_name = f'../resources/animations/{name}/{name}.mp4'
 
 
 def main():
-
     # Obtener la lista de archivos de imagen en la carpeta
     images = sorted(glob.glob(os.path.join(animation_frames_folder, frames_files_name_format)))
 

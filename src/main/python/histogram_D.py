@@ -13,10 +13,10 @@ def get_times(path):
     return data
 
 def times_graph(directory):
-    x1 = get_times('../resources/times5.txt')
-    x2 = get_times('../resources/times8.txt')
-    x3 = get_times('../resources/times9.txt')
-    x4 = get_times('../resources/times10.txt')
+    x1 = get_times('../resources/times_F5.txt')
+    x2 = get_times('../resources/times_D1.txt')
+    x3 = get_times('../resources/times_D2.txt')
+    x4 = get_times('../resources/times_D3.txt')
 
     for x, label in zip([x1, x2, x3, x4], ['3', '4', '5', '6']):
         # Calcular los conteos de eventos en cada intervalo
@@ -26,7 +26,7 @@ def times_graph(directory):
         conteos_acumulados = np.cumsum(conteos)
 
         # Graficar el histograma acumulativo
-        plt.step(bordes[:-1], conteos_acumulados, where='post', label=label+ " cm")
+        plt.step(bordes[:-1], conteos_acumulados, where='post', label=label + " cm")
 
     # Etiquetas de los ejes
     plt.xlabel('Tiempo (s)')

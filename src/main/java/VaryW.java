@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 public class VaryW {
     private final List<Particle> particleList;
     private final JsonConfigReader config;
+
+    private Double bestFrequency;
+
     public VaryW(List<Particle> particleList, JsonConfigReader config) {
         this.particleList = particleList;
         this.config = config;
@@ -35,17 +38,21 @@ public class VaryW {
                     freq,
                     "output_F_" + freq + "_",
                     this.particleList
-                    );
+            );
             systems.add(system);
             executor.execute(system);
         }
 
         executor.shutdown();
-        if(!executor.awaitTermination(10, TimeUnit.HOURS))
+        if (!executor.awaitTermination(10, TimeUnit.HOURS))
             throw new IllegalStateException("Threads timeout");
 
+        List<Double> caudals = systems.stream().map(GranularMediaSystem::getCaudal).collect(Collectors.toList());
+
+        this.bestFrequency = caudals.get(caudals.indexOf(caudals.stream().max(Double::compareTo).get()));
+
         Ovito.writeListToFIle(
-                systems.stream().map(GranularMediaSystem::getCaudal).collect(Collectors.toList()),
+                caudals,
                 Ovito.createFile("caudals_F", "txt"),
                 true
         );
@@ -69,4 +76,7 @@ public class VaryW {
         }
     }
 
+    public Double getBestFrequency() {
+        return bestFrequency;
+    }
 }

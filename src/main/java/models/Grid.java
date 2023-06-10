@@ -289,12 +289,11 @@ public class Grid {
             } else {
                 cells[newRow][newCol].add(particle);
                 cells[row][col].remove(particle);
-                if (newRow == (rowsTotal - rowsInside - 1) && particle.getColor().equals(Color.RED))
-                    particle.setColor(Color.GREEN);
+                if (particle.isGone() && particle.getColor().equals(Color.RED))
+                    particle.setColor(Color.BLACK);
                 return true;
             }
         } catch (IndexOutOfBoundsException e) {
-//            throw new IllegalStateException(particle.getId() + " " + newRow + " " + newCol);
             return true;
         }
     }

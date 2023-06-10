@@ -13,16 +13,16 @@ def get_times(path):
     return data
 
 def times_graph(directory):
-    x1 = get_times('../resources/times1.txt')
-    x2 = get_times('../resources/times2.txt')
-    x3 = get_times('../resources/times3.txt')
-    x4 = get_times('../resources/times4.txt')
-    x5 = get_times('../resources/times5.txt')
-    x6 = get_times('../resources/times6.txt')
-    x7 = get_times('../resources/times7.txt')
+    x1 = get_times('../resources/times_F1.txt')
+    x2 = get_times('../resources/times_F2.txt')
+    x3 = get_times('../resources/times_F3.txt')
+    x4 = get_times('../resources/times_F4.txt')
+    x5 = get_times('../resources/times_F5.txt')
+    x6 = get_times('../resources/times_F6.txt')
+    x7 = get_times('../resources/times_F7.txt')
 
-    for x, label in zip([x1, x2, x3, x4, x5, x6, x7], ['5', '10', '15', '20', '30', '40', '50']):
-    # Calcular los conteos de eventos en cada intervalo
+    for x, label in zip([x1, x4, x5, x7], ['5', '20', '30', '50']):
+        # Calcular los conteos de eventos en cada intervalo
         conteos, bordes = np.histogram(x, bins=1000)
 
         # Calcular los conteos acumulativos
@@ -34,9 +34,20 @@ def times_graph(directory):
     # Etiquetas de los ejes
     plt.xlabel('Tiempo (s)')
     plt.ylabel('Cantidad de partículas que salieron')
-
-    plt.xlim(0, 1000)
     plt.legend()
+
+    ax_zoom = plt.axes([0.6, 0.2, 0.25, 0.25])  # Posición y tamaño del recuadro
+    for x, label in zip([x1, x4, x5, x7], ['5', '20', '30', '50']):
+        # Calcular los conteos de eventos en cada intervalo
+        conteos, bordes = np.histogram(x, bins=1000)
+
+        # Calcular los conteos acumulativos
+        conteos_acumulados = np.cumsum(conteos)
+
+        # Agregar recuadro con zoom
+        ax_zoom.step(bordes[:-1], conteos_acumulados, where='post')
+        ax_zoom.set_xlim(950, 1000)
+        ax_zoom.set_ylim(4000, 4700)
 
     plt.savefig(directory + 'histogram.png')
     plt.clf()

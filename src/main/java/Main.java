@@ -22,17 +22,18 @@ public class Main {
                     config.getDt(),
                     0.0,
                     config.getMaxTime(),
-                    0.0,
-                    "no_D_no_W",
-                    particleList
-            );
+                0.0,
+                "no_D_no_W",
+                particleList
+        );
         system.run();
 
         VaryW varyW = new VaryW(particleList, config);
 
         varyW.run();
 
-        VaryD varyD = new VaryD(particleList, config);
+
+        VaryD varyD = new VaryD(particleList, config, varyW.getBestFrequency());
 
         varyD.run();
 
